@@ -175,4 +175,13 @@ public class Account {
         this.commentsMade = null;
         this.loggedIn = false;
     }
+    
+    public Account findAccount(String name) throws AccountException{
+        for( Account account : accounts){
+            if(account.getUsername().equals(name)){
+                return account;
+            }
+        }
+        throw new AccountException("User not found!");
+    }
 }
