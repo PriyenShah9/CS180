@@ -1,19 +1,21 @@
 import java.util.ArrayList;
+import java.time.*;
 
 public class Post {
     private String title;
     private String authorName;
-    private String authorUsername;
+    private final Account account; //account that made it
     private String text;
-    private int date; //mmddyy
-    private int time; //hhmm
+    private LocalDateTime timestamp; //e.g. 2010-12-03T11:30
     private ArrayList<Comment> comments;
-    private int numComments;
 
-    public Post(String title, String authorName, String text) {
+    public Post(String title, String authorName, String text, Account account) throws PostException, AccessException {
         this.title = title;
         this.authorName = authorName;
         this.text = text;
+        this.account = account;
+        this.timestamp = LocalDateTime.now();
+        account.addPost(this);
     }
 
     public String getTitle() {
@@ -25,25 +27,38 @@ public class Post {
     }
 
     public String getAuthorUsername() {
-        return authorUsername;
+        return account.getUsername();
+    }
+
+    public String getTimeStamp() {
+        return timestamp.toString();
     }
 
     public int getNumComments() {
-        return numComments;
+        return comments.size();
+    }
+
+    public void addComment(Comment comment) {
+        comments.add(comment);
     }
 
     public void deletePost() {
         title = null;
         authorName = null;
-
+        text = null;
+        comments = null;
+        timestamp = null;
     }
 
-    public void displayPost() {
-
+    public void displayPost() throws PostException{
+        if (this.title == null) {
+            throw new PostException("This post was deleted!");
+        }
+        System.out.println(this.toString());
     }
 
     public String toString() {
-
+        return title + "\n" + account.getUsername() + "\t" + timestamp + "\n" + text;
     }
 
 }

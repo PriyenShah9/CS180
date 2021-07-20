@@ -1,4 +1,7 @@
 import java.util.ArrayList;
+import java.io.*;
+import java.util.Scanner;
+
 /**
  * Project 4 - Account
  * <p>
@@ -12,17 +15,17 @@ import java.util.ArrayList;
  *
  */
 public class Account {
-    private static ArrayList<Account> accounts;
+    private static ArrayList<Account> accounts; //TEMPORARY SOLUTION
     private String username;
     private String password;
     private String name;
     private ArrayList<Post> posts;
     private ArrayList<Comment> commentsMade;
-    private int numPosts;
     private boolean loggedIn = false; //by default not logged in
 
+    //create an account
     public Account(String username, String password, String name) throws AccountException {
-        for (Account i : accounts) {
+        for (Account i : accounts) { //temporary solution?
             if (i.username.equals(username)) {
                 throw new AccountException("Username taken!");
             }
@@ -31,10 +34,16 @@ public class Account {
         this.password = password;
         this.name = name;
         this.loggedIn = true;
-        this.numPosts = 0;
     }
 
-    public Account() {} //to be loaded if it existed previously
+    public Account(String username) throws AccountException { //to be loaded if it existed previously
+        try (Scanner scan = new Scanner(new File("username.txt"))) {
+            //details later
+        } catch (FileNotFoundException e) {
+            AccountException ae = new AccountException(String.format("Account with %s does not exist!", username));
+            throw ae;
+        }
+    }
 
     // checks if user is logged into the account and can have access
     private void isLoggedIn() throws AccessException {
@@ -44,18 +53,45 @@ public class Account {
     }
 
     // logs user in when password is correct
-    private void logIn() {
+    public void logIn(String password) throws AccessException {
+        if (!password.equals(this.password)) {
+            throw new AccessException("Incorrect Password!");
+        }
         loggedIn = true;
     }
 
     // user can log out and data will be saved
     public void logOut() {
         loggedIn = false;
-        //write changes to file
-    }
+        //TODO
+     }
 
     public String getUsername() {
         return username;
+    }
+
+    public void changeUsername(String username) throws AccessException, AccountException {
+        this.isLoggedIn();
+
+        for (Account i : accounts) { //temporary solution?
+            if (i.username.equals(username)) {
+                throw new AccountException("Username taken!");
+            }
+        }
+
+        this.username = username;
+    }
+
+    public void changePassword(String password) throws AccessException{
+        this.isLoggedIn();
+
+        this.password = password;
+    }
+
+    public void changeName(String name) throws AccessException{
+        this.isLoggedIn();
+
+        this.name = name;
     }
 
     public void addPost(Post post) throws PostException, AccessException {
@@ -64,12 +100,25 @@ public class Account {
         if (posts != null && posts.size() > 0) {
             for (Post i : posts) {
                 if (i.getTitle().equals(post.getTitle())) {
-                    throw new PostException("A post with this title already exists!");
+                    throw new PostException("You already made a post with this title!");
                 }
             }
         }
         posts.add(post);
-        numPosts++;
+    }
+
+    public void uploadPost(File filename) { //from a csv
+        //TODO
+    }
+
+    public void displayPosts() throws PostException {
+        for (Post i : posts) {
+            i.displayPost();
+        }
+    }
+
+    public void editPost(Post post) {
+        //TODO
     }
 
     public void deletePost(Post post) throws PostException, AccessException {
@@ -79,7 +128,6 @@ public class Account {
             throw new PostException("This post does not exist!");
         }
         posts.remove(post);
-        numPosts--;
         post.deletePost();
     }
 
@@ -87,22 +135,34 @@ public class Account {
         return commentsMade;
     }
 
-    public void displayComments() {
-
+    public void displayComments() throws CommentException, PostException {
+        for (Comment i : commentsMade) {
+            i.displayComment();
+        }
     }
 
     public void makeComment(Comment comment) {
         commentsMade.add(comment);
     }
 
-    public void editComment() throws AccessException {
+    public void editComment(Comment comment, String text) throws AccessException, CommentException {
         this.isLoggedIn();
-        //finish
+
+        if (!commentsMade.contains(comment)) {
+            throw new CommentException("Comment does not exist!");
+        }
+
+        comment.editComment(text);
     }
 
-    public void editAccount() throws AccessException {
+    public void deleteComment(Comment comment) throws AccessException, AccountException {
         this.isLoggedIn();
-        //finish
+
+        if (!commentsMade.contains(comment)) {
+            throw new AccountException("Comment does not exist!");
+        }
+        commentsMade.remove(comment);
+        comment.deleteComment();
     }
 
     public void deleteAccount() throws AccessException {
@@ -113,7 +173,6 @@ public class Account {
         this.password = null;
         this.posts = null;
         this.commentsMade = null;
-        this.numPosts = 0;
         this.loggedIn = false;
     }
 }
