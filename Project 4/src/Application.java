@@ -18,6 +18,7 @@ public class Application {
             }
             if (firstAnswer.equals("1")) {
                 Account a = createAccount(scan);
+                accounts.add(a);
                 username = a.getUsername();
             } else {
                 boolean logIn = true;
