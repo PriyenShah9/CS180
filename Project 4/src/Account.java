@@ -58,7 +58,7 @@ public class Account {
      *
      * @throws AccessException: when not logged in
      */
-    private void isLoggedIn() throws AccessException {
+    public void isLoggedIn() throws AccessException {
         if (!loggedIn) {
             throw new AccessException("You are not logged in to this account!");
         }
@@ -86,6 +86,7 @@ public class Account {
     public String getUsername() {
         return username;
     }
+
     /**
      * change username
      *
@@ -100,7 +101,7 @@ public class Account {
      *
      * @return: password
      */
-    public String getPassword(String password) {
+    public String getPassword() {
         return password;
     }
 
@@ -111,6 +112,15 @@ public class Account {
      */
     public void changePassword(String password) {
         this.password = password;
+    }
+
+    /**
+     * get name
+     *
+     * @return: name
+     */
+    public String getName() {
+        return name;
     }
 
     /**
@@ -167,9 +177,8 @@ public class Account {
             String title = p1[0];
             String authorName = p1[1];
             String text = p1[2];
-            String timestamp = p1[3];
 
-            Post post = new Post(title, authorName, text, this, timestamp);
+            Post post = new Post(title, authorName, text, this);
             this.addPost(post);
             sc.close();
 

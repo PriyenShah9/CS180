@@ -95,6 +95,15 @@ public class Comment {
     }
 
     /**
+     * get time
+     *
+     * @return: timestamp
+     */
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    /**
      * edit comment
      *
      * @param text: new text

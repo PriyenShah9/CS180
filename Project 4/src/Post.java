@@ -50,12 +50,13 @@ public class Post {
      * @param account: account that made the post
      * @param timestamp: current time (local machine)
      */
-    public Post(String title, String authorName, String text, Account account, String timestamp) {
+    public Post(String title, String authorName, String text, Account account, String timestamp, ArrayList<Comment> comments) {
         this.title = title;
         this.authorName = authorName;
         this.text = text;
         this.account = account;
         this.timestamp = timestamp;
+        this.comments = comments;
     }
 
     /**

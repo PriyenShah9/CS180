@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Scanner;
@@ -7,8 +8,20 @@ import java.time.LocalDateTime;
 public class Application {
 
     private static ArrayList<Account> accounts = new ArrayList<Account>();
+    private static ArrayList<Post> posts = new ArrayList<Post>();
+    private static ArrayList<Comment> comments = new ArrayList<Comment>();
 
-    public static void main(String[] args) throws AccountException{
+    public static void main(String[] args) throws AccountException {
+        try {
+            ReadData data = new ReadData("storagefile.txt");
+        } catch (FileNotFoundException e) {
+            System.out.println("Error loading previous data.");
+            return;
+        }
+        accounts = ReadData.accounts;
+        posts = ReadData.posts;
+        comments = ReadData.comments;
+
         Scanner scan = new Scanner(System.in);
         String username = "";
         while (true) {
@@ -41,6 +54,13 @@ public class Application {
                 } else if (firstAnswer.equals("4")) {
                     viewAccount(scan, username);
                 } else if (firstAnswer.equals("5")) {
+                    ReadData dataWrite = null;
+                    try {
+                        dataWrite = new ReadData("storagefile.txt");
+                        dataWrite.writeChangesToFile();
+                    } catch (FileNotFoundException e) {
+                        System.out.println("Error saving changes");
+                    }
                     return;
                 }
             }

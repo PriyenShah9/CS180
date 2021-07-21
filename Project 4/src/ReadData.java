@@ -8,7 +8,7 @@ public class ReadData {
     public static ArrayList<Comment> comments = new ArrayList<Comment>();
     private String fileName;
 
-    public ReadData(String fileName) throws FileNotFoundException, AccountException, PostException, CommentException {
+    public ReadData(String fileName) throws FileNotFoundException {
         this.fileName = fileName;
         File input = new File(fileName);
         FileReader fr = new FileReader(input);
@@ -39,17 +39,13 @@ public class ReadData {
         String name = splitLine[0].replaceAll("_", " ");
         String username = splitLine[1];
         String password = splitLine[2];
-        String isLoggedIn = splitLine[3];
-        boolean loggedIn = false;
         String[] postInformation = postLine.split("$");
-        if (isLoggedIn.equalsIgnoreCase("True")) {
-            loggedIn = true;
-        }
+
 
         for (int w = 0; w < postInformation.length; w++) {
             String[] splitPosts = postInformation[w].split(" ");
             String postTitle = splitPosts[0].replaceAll("_", " ");
-            String caption = splitPosts[1].replaceAll("_", " ");
+            String text = splitPosts[1].replaceAll("_", " ");
             String timeStamp = splitPosts[2];
             Comment newComment;
             Post newPost;
@@ -57,13 +53,13 @@ public class ReadData {
             ArrayList<Post> userPosts = new ArrayList<Post>();
             ArrayList<Comment> postComments = new ArrayList<Comment>();
 
-            newAccount = new Account(name, username, password, isLoggedIn, userPosts);
-            newPost = new Post(postTitle, newAccount, name, caption, timeStamp, postComments);
+            newAccount = new Account(name, username, password, userPosts, null);
+            newPost = new Post(postTitle, newAccount.getUsername(), text, newAccount, timeStamp, postComments);
 
             if (splitPosts.length > 3) {
                 for (int i = 3; i < splitPosts.length; i++) {
                     String[] commentData = splitPosts[i].split(";");
-                    newComment = new Comment(commentData[0], newPost, commentData[1].replaceAll("_", " "));
+                    newComment = new Comment(commentData[0], commentData[1].replaceAll("_", " "), newPost, newAccount, commentData[2]);
                     comments.add(newComment);
                 }
             }
@@ -103,27 +99,25 @@ public class ReadData {
             String accountName = accounts.get(i).getName().replaceAll(" ", "_");
             String accountUsername = accounts.get(i).getUsername().replaceAll(" ", "_");
             String accountPassword = accounts.get(i).getPassword();
-            String accountLoggedIn = String.valueOf(accounts.get(i).getLoggedIn());
-            pw.println(accountName + " " + accountUsername + " " + accountPassword + " " + accountLoggedIn);
-            Posts[] accountPosts = accounts.get(i).getPosts();
-            for (int j = 0; j < accountPosts.length; j++) {
-                String postTitle = accountPosts[j].getTitle().replaceAll(" ", "_");
-                String postCaption = accountPosts[j].getCaption().replaceAll(" ", "_");
-                String postTimeStamp = accountPosts[j].getTimeStamp();
-                pw.print("$" + postTitle + " " + postCaption + " " + postTimeStamp + " ");
-                Comments[] postComments = accountPosts[j].getComments();
-                for (int w = 0; w < postComments.length; w++) {
-                    String comment = postComments[w].getComment().replaceAll(" ", "_");
-                    String author = postComments[w].getAuthor().replaceAll(" ", "_");
-                    pw.print(comment + ";" + author + " ");
+            pw.println(accountName + " " + accountUsername + " " + accountPassword);
+            ArrayList<Post> accountPosts = accounts.get(i).getPosts();
+            for (int j = 0; j < accountPosts.size(); j++) {
+                String postTitle = accountPosts.get(j).getTitle().replaceAll(" ", "_");
+                String postText = accountPosts.get(j).getTitle().replaceAll(" ", "_");
+                String postTimeStamp = accountPosts.get(j).getTimeStamp();
+                pw.print("$" + postTitle + " " + postText + " " + postTimeStamp + " ");
+                ArrayList<Comment> postComments = accountPosts.get(j).getComments();
+                for (int w = 0; w < postComments.size(); w++) {
+                    String comment = postComments.get(w).getText().replaceAll(" ", "_");
+                    String author = postComments.get(w).getAuthorName().replaceAll(" ", "_");
+                    String commentTimeStamp = postComments.get(w).getTimestamp();
+                    pw.print(comment + ";" + author + " " + commentTimeStamp);
 
                 }
 
             }
             pw.println();
-
         }
-
         pw.close();
     }
 }
