@@ -56,7 +56,7 @@ public class Application {
                 } else if (firstAnswer.equals("4")) {
                     viewAccount(scan, username);
                 } else if (firstAnswer.equals("5")) {
-                    ReadData dataWrite = null;
+                    ReadData dataWrite;
                     try {
                         dataWrite = new ReadData("storagefile.txt");
                         dataWrite.writeChangesToFile();
@@ -104,7 +104,7 @@ public class Application {
 
 
     public static String login(Scanner scan) {
-        System.out.println("To edit an account you must login.");
+        System.out.println("To edit or view an account you must login.");
         System.out.print("Username: ");
         String username = scan.nextLine();
         while(usernameValidity(username) == null) {
@@ -130,10 +130,10 @@ public class Application {
         try {
             commenting.isLoggedIn();
         } catch (AccessException e) {
-            System.out.print("You are not logged in.");
+            System.out.print("You are not logged in. ");
             return;
         } catch (NullPointerException e) {
-            System.out.print("You are not logged in.");
+            System.out.print("You are not logged in. ");
             return;
         }
         boolean loop = true;
