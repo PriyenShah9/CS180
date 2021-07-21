@@ -17,8 +17,8 @@ public class Account {
     private String username;
     private String password;
     private String name;
-    private ArrayList<Post> posts;
-    private ArrayList<Comment> commentsMade;
+    private ArrayList<Post> posts = new ArrayList<Post>();
+    private ArrayList<Comment> commentsMade = new ArrayList<Comment>();
     private boolean loggedIn = false; //by default not logged in
 
     /**

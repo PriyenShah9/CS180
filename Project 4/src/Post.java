@@ -16,7 +16,7 @@ public class Post {
     private final Account account; //account that made it
     private String text;
     private String timestamp; //e.g. 2010-12-03T11:30
-    private ArrayList<Comment> comments;
+    private ArrayList<Comment> comments = new ArrayList<Comment>();
 
     /**
      * Constructs a new post - for use with a brand new post

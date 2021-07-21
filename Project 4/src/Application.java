@@ -12,15 +12,17 @@ public class Application {
     private static ArrayList<Comment> comments = new ArrayList<Comment>();
 
     public static void main(String[] args) throws AccountException {
-        try {
-            ReadData data = new ReadData("storagefile.txt");
-        } catch (FileNotFoundException e) {
-            System.out.println("Error loading previous data.");
-            return;
+        File f = new File("storagefile.txt");
+        if (f.exists()) {
+            try {
+                ReadData data = new ReadData("storagefile.txt");
+            } catch (FileNotFoundException e) {
+                System.out.println("Error loading previous data.");
+            }
+            accounts = ReadData.accounts;
+            posts = ReadData.posts;
+            comments = ReadData.comments;
         }
-        accounts = ReadData.accounts;
-        posts = ReadData.posts;
-        comments = ReadData.comments;
 
         Scanner scan = new Scanner(System.in);
         String username = "";
