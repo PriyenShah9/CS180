@@ -58,7 +58,7 @@ public class Account {
      *
      * @throws AccessException: when not logged in
      */
-    private void isLoggedIn() throws AccessException {
+    public void isLoggedIn() throws AccessException {
         if (!loggedIn) {
             throw new AccessException("You are not logged in to this account!");
         }
