@@ -33,9 +33,7 @@ public class Post {
         this.account = account;
 
         String time = LocalDateTime.now().toString();
-        time.replaceAll("-", ":");
-        time.replaceAll("T", ":");
-        time = time.substring(5);
+        time = time.substring(5, 19);
         this.timestamp = time;
         account.addPost(this);
     }
@@ -102,6 +100,15 @@ public class Post {
      */
     public String getTimeStamp() {
         return timestamp.toString();
+    }
+
+    /**
+     * get text
+     *
+     * @return: number of comments
+     */
+    public String getText() {
+        return text;
     }
 
     /**

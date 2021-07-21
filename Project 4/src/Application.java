@@ -81,7 +81,7 @@ public class Application {
     public static String createAccountQuestion(Scanner scan) {
         System.out.print("Would you like to create(1), edit(2), delete(3), view(4) an account or exit the program(5)? ");
         String ans = scan.nextLine();
-        while (!ans.equals("1") && !ans.equals("2") && !ans.equals("3") && !ans.equals("4") && !ans.equals("5")) {
+        while (!(ans.equals("1")) && !(ans.equals("2")) && !(ans.equals("3")) && !(ans.equals("4")) && !(ans.equals("5"))) {
             System.out.println("You must answer with either 1, 2, 3, 4, or 5.");
             System.out.print("Would you like to create(1), edit(2), delete(3), view(4) an account or exit the program(5)? ");
             ans = scan.nextLine();
@@ -158,6 +158,7 @@ public class Application {
                 return;
             }
             System.out.println("Here are " + usernameToBeViewed + "'s posts.");
+            System.out.println(a.getPosts().size());
             for (int i = 0; i < a.getPosts().size(); i++) {
                 a.getPosts().get(i).displayPost();
                 System.out.println();
@@ -174,10 +175,10 @@ public class Application {
             if (ans.equalsIgnoreCase("b")) {
                 return;
             } else if (ans.equalsIgnoreCase("c")){
-                System.out.print("Enter the title of the post you would like to make a comment to.");
+                System.out.print("Enter the title of the post you would like to make a comment to. ");
                 String title = scan.nextLine();
                 while (getPostIndex(title, a) == -1) {
-                    System.out.print("Post with title " + title + "could not be found. Try again: ");
+                    System.out.print("Post with title " + title + " could not be found. Try again: ");
                     title = scan.nextLine();
                 }
                 System.out.println("What would you like to comment on this post.");
@@ -263,7 +264,8 @@ public class Application {
             System.out.print("Would you like to create(c), edit(e), delete(d), import(i), or export(ex) a post? ");
             String ans = scan.nextLine();
             while (!(ans.equalsIgnoreCase("c") || ans.equalsIgnoreCase("e")
-                    || ans.equalsIgnoreCase("d"))) {
+                    || ans.equalsIgnoreCase("d") || ans.equalsIgnoreCase("i")
+                    || ans.equalsIgnoreCase("ex"))) {
                 System.out.println("You must answer with c, e, d, i, or ex");
                 System.out.print("Would you like to create(c), edit(e), delete(d), import(i), or export(ex) a post? ");
                 ans = scan.nextLine();
@@ -275,7 +277,6 @@ public class Application {
                 String postContent = scan.nextLine();
                 LocalDateTime now = LocalDateTime.now();
                 Post addPost = new Post(title, username, postContent, a);
-                a.addPost(addPost);
             } else if (ans.equalsIgnoreCase("e")) {
                 System.out.print("What is the title of the post that you would like to edit: ");
                 String title = scan.nextLine();
@@ -326,12 +327,12 @@ public class Application {
             }
             System.out.print("Would you like to edit your account(c) or go back(b)? ");
             String answer = scan.nextLine();
-            while (!(ans.equalsIgnoreCase("c") && !(ans.equalsIgnoreCase("b")))) {
+            while (!(answer.equalsIgnoreCase("c")) && !(answer.equalsIgnoreCase("b"))) {
                 System.out.println("You must answer with \"c\" or \"b\".");
                 System.out.print("Would you like to edit your account(c) or go back(b)? ");
-                ans = scan.nextLine();
+                answer = scan.nextLine();
             }
-            if (ans.equalsIgnoreCase("b")) {
+            if (answer.equalsIgnoreCase("b")) {
                 return;
             } else {
                 loop = true;

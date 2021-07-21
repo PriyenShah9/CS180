@@ -33,9 +33,7 @@ public class Comment {
         post.addComment(this);
 
         String time = LocalDateTime.now().toString();
-        time.replaceAll("-", ":");
-        time.replaceAll("T", ":");
-        time = time.substring(5);
+        time = time.substring(5, 19);
         this.timestamp = time;
         account.makeComment(this);
     }

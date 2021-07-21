@@ -41,9 +41,9 @@ public class ReadData {
         String name = splitLine[2];
 
         if (postLine.length() != 0) {
-            String[] postInformation = postLine.split("$");
+            String[] postInformation = postLine.split("\\$");
 
-            for (int w = 0; w < postInformation.length; w++) {
+            for (int w = 1; w < postInformation.length; w++) { //start 1 b/c first element is ""
                 String[] splitPosts = postInformation[w].split(" ");
                 String postTitle = splitPosts[0].replaceAll("_", " ");
                 String text = splitPosts[1].replaceAll("_", " ");
@@ -57,7 +57,8 @@ public class ReadData {
                 newAccount = new Account(name, username, password, userPosts, null);
                 newPost = new Post(postTitle, newAccount.getUsername(), text, newAccount, timeStamp, postComments);
 
-                if (splitPosts.length > 4) { //maybe 3
+                System.out.println(splitPosts.length);
+                if (splitPosts.length > 3) {
                     for (int i = 3; i < splitPosts.length; i++) {
                         String[] commentData = splitPosts[i].split(";");
                         newComment = new Comment(commentData[0], commentData[1].replaceAll("_", " "), newPost, newAccount, commentData[2]);
@@ -78,7 +79,11 @@ public class ReadData {
             }
             return;
         }
-        Account newAccount = new Account(name, username, password, null, null);
+        ArrayList<Post> tempPosts = new ArrayList<>();
+        tempPosts.add(null);
+        ArrayList<Comment> tempComments = new ArrayList<>();
+        tempComments.add(null);
+        Account newAccount = new Account(name, username, password, tempPosts, tempComments);
         accounts.add(newAccount);
     }
 
