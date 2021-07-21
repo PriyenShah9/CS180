@@ -123,7 +123,7 @@ public class Comment {
     /**
      * format comment as string
      *
-     * @return: string version
+     * @return: string version of comment
      * username - timestamp: text
      */
     public String toString() {

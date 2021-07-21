@@ -218,7 +218,7 @@ public class Account {
     }
 
     /**
-     * display all comments
+     * display all comments made
      */
     public void displayComments() {
         for (Comment i : commentsMade) {

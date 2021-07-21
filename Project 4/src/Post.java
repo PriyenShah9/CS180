@@ -182,7 +182,7 @@ public class Post {
      * export post to a csv
      *
      * @param post: post to be exported
-     * @throws IOException
+     * @throws IOException: when FileWritier fails
      */
     public void exportPost(Post post) throws IOException {
         try (FileWriter fw = new FileWriter(new File(post.title +".csv"))) {
