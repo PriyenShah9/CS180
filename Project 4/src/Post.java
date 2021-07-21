@@ -1,6 +1,8 @@
 import java.util.ArrayList;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.*;
 import java.util.Scanner;
 
@@ -65,8 +67,6 @@ public class Post {
     }
 
     public void uploadPost(String filename) throws AccessException, Exception{
-        
-
         try {
 
             Scanner sc = new Scanner(new File(filename));  
@@ -91,6 +91,19 @@ public class Post {
             throw a;
         }
      
+    }
+    public void exportPost(Post post){
+
+        try (FileWriter fw = new FileWriter(new File(post.title +".csv"))) {
+            fw.append(post.title + ",");
+            fw.append(post.authorName + ",");
+            fw.append(post.text + ",");
+            fw.append(post.timestamp.toString());
+            
+        } catch (IOException e) {
+        
+            e.printStackTrace();
+        }
     }
 
 }
