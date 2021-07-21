@@ -1,10 +1,6 @@
 import java.io.*;
 import java.util.ArrayList;
 
-//USER: new User(String name, String username, String password, Boolean isLoggedIn, ArrayList<Posts>())
-//POST: new Post(String postTitle, Account account, String authorName, String caption, String mm:dd:hh:mm:ss, ArrayList<Comment>());
-//COMMENT: new Comment(String comment, Post post, String author);
-
 public class ReadData {
 
     public static ArrayList<Account> accounts = new ArrayList<Account>();
@@ -12,7 +8,7 @@ public class ReadData {
     public static ArrayList<Comment> comments = new ArrayList<Comment>();
     private String fileName;
 
-    public ReadData(String fileName) throws FileNotFoundException, AccountException, PostException, CommentException, AccessException {
+    public ReadData(String fileName) throws FileNotFoundException, AccountException, PostException, CommentException {
         this.fileName = fileName;
         File input = new File(fileName);
         FileReader fr = new FileReader(input);
@@ -38,9 +34,9 @@ public class ReadData {
         }
     }
 
-    private static void createInformation(String line, String postLine) throws PostException, AccountException, CommentException, AccessException{
+    private static void createInformation(String line, String postLine) {
         String[] splitLine = line.split(" ");
-        String name = splitLine[0];
+        String name = splitLine[0].replaceAll("_", " ");
         String username = splitLine[1];
         String password = splitLine[2];
         String isLoggedIn = splitLine[3];
@@ -52,8 +48,8 @@ public class ReadData {
 
         for (int w = 0; w < postInformation.length; w++) {
             String[] splitPosts = postInformation[w].split(" ");
-            String postTitle = splitPosts[0];
-            String caption = splitPosts[1];
+            String postTitle = splitPosts[0].replaceAll("_", " ");
+            String caption = splitPosts[1].replaceAll("_", " ");
             String timeStamp = splitPosts[2];
             Comment newComment;
             Post newPost;
@@ -67,7 +63,7 @@ public class ReadData {
             if (splitPosts.length > 3) {
                 for (int i = 3; i < splitPosts.length; i++) {
                     String[] commentData = splitPosts[i].split(";");
-                    newComment = new Comment(commentData[0], newPost, commentData[1]);
+                    newComment = new Comment(commentData[0], newPost, commentData[1].replaceAll("_", " "));
                     comments.add(newComment);
                 }
             }
@@ -109,16 +105,16 @@ public class ReadData {
             String accountPassword = accounts.get(i).getPassword();
             String accountLoggedIn = String.valueOf(accounts.get(i).getLoggedIn());
             pw.println(accountName + " " + accountUsername + " " + accountPassword + " " + accountLoggedIn);
-            Post[] accountPosts = accounts.get(i).getPosts();
+            Posts[] accountPosts = accounts.get(i).getPosts();
             for (int j = 0; j < accountPosts.length; j++) {
-                String postTitle = accountPosts[j].getTitle();
-                String postCaption = accountPosts[j].getCaption();
+                String postTitle = accountPosts[j].getTitle().replaceAll(" ", "_");
+                String postCaption = accountPosts[j].getCaption().replaceAll(" ", "_");
                 String postTimeStamp = accountPosts[j].getTimeStamp();
                 pw.print("$" + postTitle + " " + postCaption + " " + postTimeStamp + " ");
-                Comment[] postComments = accountPosts[j].getComments();
+                Comments[] postComments = accountPosts[j].getComments();
                 for (int w = 0; w < postComments.length; w++) {
-                    String comment = postComments[w].getComment();
-                    String author = postComments[w].getAuthor();
+                    String comment = postComments[w].getComment().replaceAll(" ", "_");
+                    String author = postComments[w].getAuthor().replaceAll(" ", "_");
                     pw.print(comment + ";" + author + " ");
 
                 }
