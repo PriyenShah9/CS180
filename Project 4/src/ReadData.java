@@ -36,46 +36,50 @@ public class ReadData {
 
     private static void createInformation(String line, String postLine) {
         String[] splitLine = line.split(" ");
-        String name = splitLine[0].replaceAll("_", " ");
-        String username = splitLine[1];
-        String password = splitLine[2];
-        String[] postInformation = postLine.split("$");
+        String username = splitLine[0].replaceAll("_", " ");
+        String password = splitLine[1];
+        String name = splitLine[2];
 
+        if (postLine.length() != 0) {
+            String[] postInformation = postLine.split("$");
 
-        for (int w = 0; w < postInformation.length; w++) {
-            String[] splitPosts = postInformation[w].split(" ");
-            String postTitle = splitPosts[0].replaceAll("_", " ");
-            String text = splitPosts[1].replaceAll("_", " ");
-            String timeStamp = splitPosts[2];
-            Comment newComment;
-            Post newPost;
-            Account newAccount;
-            ArrayList<Post> userPosts = new ArrayList<Post>();
-            ArrayList<Comment> postComments = new ArrayList<Comment>();
+            for (int w = 0; w < postInformation.length; w++) {
+                String[] splitPosts = postInformation[w].split(" ");
+                String postTitle = splitPosts[0].replaceAll("_", " ");
+                String text = splitPosts[1].replaceAll("_", " ");
+                String timeStamp = splitPosts[2];
+                Comment newComment;
+                Post newPost;
+                Account newAccount;
+                ArrayList<Post> userPosts = new ArrayList<Post>();
+                ArrayList<Comment> postComments = new ArrayList<Comment>();
 
-            newAccount = new Account(name, username, password, userPosts, null);
-            newPost = new Post(postTitle, newAccount.getUsername(), text, newAccount, timeStamp, postComments);
+                newAccount = new Account(name, username, password, userPosts, null);
+                newPost = new Post(postTitle, newAccount.getUsername(), text, newAccount, timeStamp, postComments);
 
-            if (splitPosts.length > 3) {
-                for (int i = 3; i < splitPosts.length; i++) {
-                    String[] commentData = splitPosts[i].split(";");
-                    newComment = new Comment(commentData[0], commentData[1].replaceAll("_", " "), newPost, newAccount, commentData[2]);
-                    comments.add(newComment);
+                if (splitPosts.length > 4) { //maybe 3
+                    for (int i = 3; i < splitPosts.length; i++) {
+                        String[] commentData = splitPosts[i].split(";");
+                        newComment = new Comment(commentData[0], commentData[1].replaceAll("_", " "), newPost, newAccount, commentData[2]);
+                        comments.add(newComment);
+                    }
                 }
-            }
 
-            if (newAccount.equals(newPost.getAccount())) {
-                newAccount.addPost(newPost);
-            }
-            for (int t = 0; t < comments.size(); t++) {
-                if (newPost.equals(comments.get(t).getPost())) {
-                    newPost.addComment(comments.get(t));
+                if (newAccount.equals(newPost.getAccount())) {
+                    newAccount.addPost(newPost);
                 }
+                for (int t = 0; t < comments.size(); t++) {
+                    if (newPost.equals(comments.get(t).getPost())) {
+                        newPost.addComment(comments.get(t));
+                    }
+                }
+                accounts.add(newAccount);
+                posts.add(newPost);
             }
-            accounts.add(newAccount);
-            posts.add(newPost);
-
+            return;
         }
+        Account newAccount = new Account(name, username, password, null, null);
+        accounts.add(newAccount);
     }
 
     public static ArrayList<Account> getAccounts() {
@@ -90,10 +94,9 @@ public class ReadData {
         return posts;
     }
 
-    public void writeChangesToFile() throws FileNotFoundException {
+    public static void writeChangesToFile(String fileName) throws FileNotFoundException {
         File output = new File(fileName);
-        FileOutputStream fos = new FileOutputStream(output);
-        PrintWriter pw = new PrintWriter(fos);
+        PrintWriter pw = new PrintWriter(output);
 
         for (int i = 0; i < accounts.size(); i++) {
             String accountName = accounts.get(i).getName().replaceAll(" ", "_");
@@ -103,7 +106,7 @@ public class ReadData {
             ArrayList<Post> accountPosts = accounts.get(i).getPosts();
             for (int j = 0; j < accountPosts.size(); j++) {
                 String postTitle = accountPosts.get(j).getTitle().replaceAll(" ", "_");
-                String postText = accountPosts.get(j).getTitle().replaceAll(" ", "_");
+                String postText = accountPosts.get(j).getText().replaceAll(" ", "_");
                 String postTimeStamp = accountPosts.get(j).getTimeStamp();
                 pw.print("$" + postTitle + " " + postText + " " + postTimeStamp + " ");
                 ArrayList<Comment> postComments = accountPosts.get(j).getComments();
@@ -112,9 +115,7 @@ public class ReadData {
                     String author = postComments.get(w).getAuthorName().replaceAll(" ", "_");
                     String commentTimeStamp = postComments.get(w).getTimestamp();
                     pw.print(comment + ";" + author + " " + commentTimeStamp);
-
                 }
-
             }
             pw.println();
         }

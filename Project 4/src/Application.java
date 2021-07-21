@@ -29,6 +29,14 @@ public class Application {
         while (true) {
             String firstAnswer = createAccountQuestion(scan);
             if (firstAnswer.equals("5")) {
+                try {
+                    ReadData.accounts = accounts;
+                    ReadData.posts = posts;
+                    ReadData.comments = comments;
+                    ReadData.writeChangesToFile("storagefile.txt");
+                } catch (FileNotFoundException e) {
+                    System.out.println("Error saving changes");
+                }
                 return;
             }
             if (firstAnswer.equals("1")) {
@@ -43,6 +51,7 @@ public class Application {
                 if (firstAnswer.equals("2")) {
                     editAccount(scan, username);
                 } else if (firstAnswer.equals("3")) {
+                    System.out.println(username);
                     Account a = usernameValidity(username);
                     try {
                         a.isLoggedIn();
@@ -52,14 +61,13 @@ public class Application {
                     }
                     if (logIn) {
                         a.deleteAccount();
+                        System.out.println("Account deleted");
                     }
                 } else if (firstAnswer.equals("4")) {
                     viewAccount(scan, username);
                 } else if (firstAnswer.equals("5")) {
-                    ReadData dataWrite;
                     try {
-                        dataWrite = new ReadData("storagefile.txt");
-                        dataWrite.writeChangesToFile();
+                        ReadData.writeChangesToFile("storagefile.txt");
                     } catch (FileNotFoundException e) {
                         System.out.println("Error saving changes");
                     }
@@ -117,7 +125,7 @@ public class Application {
         Account a = usernameValidity(username);
         System.out.println("Password: ");
         String password = scan.nextLine();
-        while (password.equals(a.getPassword())) {
+        while (!password.equals(a.getPassword())) {
             System.out.print("Password is invalid. Try again: ");
             password = scan.nextLine();
         }
@@ -140,11 +148,15 @@ public class Application {
         while (loop) {
             System.out.print("Enter the username of the account you would like to view: ");
             String usernameToBeViewed = scan.nextLine();
-            while (usernameValidity(usernameToBeViewed) != null) {
+            while (usernameValidity(usernameToBeViewed) == null) {
                 System.out.print("Couldn't find username. Try again: ");
                 usernameToBeViewed = scan.nextLine();
             }
             Account a = usernameValidity(usernameToBeViewed);
+            if (a.getPosts() == null) {
+                System.out.println("No posts");
+                return;
+            }
             System.out.println("Here are " + usernameToBeViewed + "'s posts.");
             for (int i = 0; i < a.getPosts().size(); i++) {
                 a.getPosts().get(i).displayPost();
@@ -197,7 +209,7 @@ public class Application {
                 String changedContext = scan.nextLine();
                 a.getPosts().get(postIndex).getComments().get(commentPostIndex).editComment(changedContext);
                 commenting.getComments().get(commentAccountIndex).editComment(changedContext);
-                System.out.println("Your change was made");
+                System.out.println("Your change was made ");
             } else if (ans.equalsIgnoreCase("d")) {
                 System.out.print("Enter the title of the post you would like to delete a comment on.");
                 String title = scan.nextLine();
@@ -225,9 +237,9 @@ public class Application {
             }
             System.out.print("Would you like to view more accounts(c) or go back(b)? ");
             String answer = scan.nextLine();
-            while (!(ans.equalsIgnoreCase("c") || ans.equalsIgnoreCase("b"))) {
+            while (!(ans.equalsIgnoreCase("c") && !(ans.equalsIgnoreCase("b")))) {
                 System.out.println("You must answer with \"c\" or \"b\".");
-                System.out.print("Would you like to make a comment(c) on a post or go back(b)? ");
+                System.out.print("Would you like to view more accounts(c) or go back(b)? ");
                 ans = scan.nextLine();
             }
             if (ans.equalsIgnoreCase("b")) {
@@ -248,12 +260,12 @@ public class Application {
         }
         boolean loop = true;
         while (loop) {
-            System.out.print("Would you like to create(c), edit(e), delete(d), import(i), or export(e) a post? ");
+            System.out.print("Would you like to create(c), edit(e), delete(d), import(i), or export(ex) a post? ");
             String ans = scan.nextLine();
             while (!(ans.equalsIgnoreCase("c") || ans.equalsIgnoreCase("e")
                     || ans.equalsIgnoreCase("d"))) {
-                System.out.println("You must answer with c, e, or d.");
-                System.out.print("Would you like to create(c), edit(e), or delete(d) a post? ");
+                System.out.println("You must answer with c, e, d, i, or ex");
+                System.out.print("Would you like to create(c), edit(e), delete(d), import(i), or export(ex) a post? ");
                 ans = scan.nextLine();
             }
             if (ans.equalsIgnoreCase("c")) {
@@ -274,8 +286,8 @@ public class Application {
                 int postIndex = getPostIndex(title, a);
                 System.out.print("What would you like to change your post to? ");
                 String changedContext = scan.nextLine();
-                a.getPosts().get(postIndex).editText(changedContext);
-                System.out.print("Your change has been made.");
+                a.editPost(a.getPosts().get(postIndex), changedContext);
+                System.out.print("Your change has been made. ");
             } else if (ans.equalsIgnoreCase("d")) {
                 System.out.print("What is the title of the post you would like to delete? ");
                 String title = scan.nextLine();
@@ -297,7 +309,7 @@ public class Application {
                 } catch (FileNotFoundException e) {
                     System.out.println("We were unable to import this post.");
                 }
-            } else if (ans.equalsIgnoreCase("e")) {
+            } else if (ans.equalsIgnoreCase("ex")) {
                 System.out.print("What is the title of the post you would like to export? ");
                 String title = scan.nextLine();
                 while (getPostIndex(title, a) == -1) {
@@ -314,9 +326,9 @@ public class Application {
             }
             System.out.print("Would you like to edit your account(c) or go back(b)? ");
             String answer = scan.nextLine();
-            while (!(ans.equalsIgnoreCase("c") || ans.equalsIgnoreCase("b"))) {
+            while (!(ans.equalsIgnoreCase("c") && !(ans.equalsIgnoreCase("b")))) {
                 System.out.println("You must answer with \"c\" or \"b\".");
-                System.out.print("Would you like to make a comment(c) on a post or go back(b)? ");
+                System.out.print("Would you like to edit your account(c) or go back(b)? ");
                 ans = scan.nextLine();
             }
             if (ans.equalsIgnoreCase("b")) {
