@@ -132,6 +132,9 @@ public class Application {
         } catch (AccessException e) {
             System.out.print("You are not logged in.");
             return;
+        } catch (NullPointerException e) {
+            System.out.print("You are not logged in.");
+            return;
         }
         boolean loop = true;
         while (loop) {
