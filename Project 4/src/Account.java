@@ -73,13 +73,8 @@ public class Account {
 
     /**
      * Log out
-     *
-     * @throws AccessException: when not logged in - must be logged in to log out
      */
-    public void logOut() throws AccessException {
-        if (!loggedIn) {
-            throw new AccessException("You are already logged out!");
-        }
+    public void logOut() {
         loggedIn = false;
     }
 
@@ -95,23 +90,26 @@ public class Account {
      * change username
      *
      * @param username: new username
-     * @throws AccessException: when not logged in
      */
-    public void changeUsername(String username) throws AccessException {
-        this.isLoggedIn();
-
+    public void changeUsername(String username) {
         this.username = username;
+    }
+
+    /**
+     * get password
+     *
+     * @return: password
+     */
+    public String getPassword(String password) {
+        return password;
     }
 
     /**
      * change password
      *
      * @param password: new passowrd
-     * @throws AccessException: when not logged in
      */
-    public void changePassword(String password) throws AccessException{
-        this.isLoggedIn();
-
+    public void changePassword(String password) {
         this.password = password;
     }
 
@@ -119,11 +117,8 @@ public class Account {
      * change name
      *
      * @param name: new name
-     * @throws AccessException: when not logged in
      */
-    public void changeName(String name) throws AccessException{
-        this.isLoggedIn();
-
+    public void changeName(String name) {
         this.name = name;
     }
 
@@ -131,31 +126,27 @@ public class Account {
      * add a post
      *
      * @param post: post to be added
-     * @throws AccessException: when not logged in
-     * @throws PostException: when a post with this name has already been made
      */
-    public void addPost(Post post) throws PostException, AccessException {
-        this.isLoggedIn();
-
-        if (posts != null && posts.size() > 0) {
-            for (Post i : posts) {
-                if (i.getTitle().equals(post.getTitle())) {
-                    throw new PostException("You already made a post with this title!");
-                }
-            }
-        }
+    public void addPost(Post post) {
         posts.add(post);
     }
 
     /**
      * display posts
-     *
-     * @throws PostException: when post does not exist
      */
-    public void displayPosts() throws PostException {
+    public void displayPosts() {
         for (Post i : posts) {
             i.displayPost();
         }
+    }
+
+    /**
+     * returns all posts
+     *
+     * @return: posts arraylist
+     */
+    public ArrayList<Post> getPosts() {
+        return posts;
     }
 
     /**
@@ -163,12 +154,8 @@ public class Account {
      * as title, authorname, text, timestamp
      *
      * @param filename: csv file
-     * @throws AccessException: when not logged in
-     * @throws PostException: when a post with this title already exists
      */
-    public void uploadPost(String filename) throws AccessException, PostException {
-        this.isLoggedIn();
-
+    public void uploadPost(String filename) throws FileNotFoundException {
         try {
             Scanner sc = new Scanner(new File(filename));
             sc.useDelimiter(",");
@@ -187,10 +174,8 @@ public class Account {
             sc.close();
 
         } catch (FileNotFoundException e) {
-            AccessException a = new AccessException(String.format("File does not exist"));
-            throw a;
-        } catch (PostException e) {
-            throw e;
+            FileNotFoundException fe = new FileNotFoundException("File does not exist");
+            throw fe;
         }
     }
 
@@ -199,14 +184,8 @@ public class Account {
      *
      * @param post: post to be edited
      * @param text: new text
-     * @throws AccessException: when not logged in, or when not the creator of the post
      */
-    public void editPost(Post post, String text) throws AccessException {
-        this.isLoggedIn();
-        if (!post.getAccount().equals(this)) {
-            throw new AccessException("You are not the creator of this post!");
-        }
-
+    public void editPost(Post post, String text) {
         post.editText(text);
     }
 
@@ -223,17 +202,8 @@ public class Account {
      * delete a post
      *
      * @param post: post to be deleted
-     * @throws AccessException: when not logged in, or when not the author who made the post
      */
-    public void deletePost(Post post) throws PostException, AccessException {
-        this.isLoggedIn();
-        if (!post.getAccount().equals(this)) {
-            throw new AccessException("You are not the creator of this post!");
-        }
-
-        if (!posts.contains(post)) {
-            throw new PostException("This post does not exist!");
-        }
+    public void deletePost(Post post) {
         posts.remove(post);
         post.deletePost();
     }
@@ -248,12 +218,9 @@ public class Account {
     }
 
     /**
-     * display all commments
-     *
-     * @throws CommentException: when comment doesn't exist
-     * @throws PostException: when post the comment is made on doesn't exist
+     * display all comments
      */
-    public void displayComments() throws CommentException, PostException {
+    public void displayComments() {
         for (Comment i : commentsMade) {
             i.displayComment();
         }
@@ -263,10 +230,8 @@ public class Account {
      * make a comment
      *
      * @param comment: the comment
-     * @throws AccessException: when not logged in
      */
-    public void makeComment(Comment comment) throws AccessException {
-        this.isLoggedIn();
+    public void makeComment(Comment comment) {
         commentsMade.add(comment);
     }
 
@@ -275,19 +240,8 @@ public class Account {
      *
      * @param comment: comment to change
      * @param text: text of a comment
-     * @throws AccessException: when not logged in or not the author fo the comment
-     * @throws CommentException: when comment does not exit
      */
-    public void editComment(Comment comment, String text) throws AccessException, CommentException {
-        this.isLoggedIn();
-        if (!comment.getAccount().equals(this)) {
-            throw new AccessException("You are not the creator of this post!");
-        }
-
-        if (!commentsMade.contains(comment)) {
-            throw new CommentException("Comment does not exist!");
-        }
-
+    public void editComment(Comment comment, String text) {
         comment.editComment(text);
     }
 
@@ -295,18 +249,8 @@ public class Account {
      * delete a comment
      *
      * @param comment: comment to delete
-     * @throws AccessException: when not logged in or not the author of the comment
-     * @throws AccountException: when comment does not exist
      */
-    public void deleteComment(Comment comment) throws AccessException, AccountException {
-        this.isLoggedIn();
-        if (!comment.getAccount().equals(this)) {
-            throw new AccessException("You are not the creator of this comment!");
-        }
-
-        if (!commentsMade.contains(comment)) {
-            throw new AccountException("Comment does not exist!");
-        }
+    public void deleteComment(Comment comment) {
         comment.getPost().deleteComment(comment);
         commentsMade.remove(comment);
         comment.deleteComment();
@@ -314,12 +258,8 @@ public class Account {
 
     /**
      * delete account by setting fields to null
-     *
-     * @throws AccessException: when not logged in
      */
-    public void deleteAccount() throws AccessException {
-        this.isLoggedIn();
-
+    public void deleteAccount() {
         this.username = null;
         this.name = null;
         this.password = null;

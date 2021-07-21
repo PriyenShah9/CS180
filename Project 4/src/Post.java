@@ -25,10 +25,8 @@ public class Post {
      * @param authorName: author name
      * @param text: text contents
      * @param account: account that made the post
-     * @throws PostException: when a post with that title already exists
-     * @throws AccessException: when not logged into the account
      */
-    public Post(String title, String authorName, String text, Account account) throws PostException, AccessException {
+    public Post(String title, String authorName, String text, Account account) {
         this.title = title;
         this.authorName = authorName;
         this.text = text;
@@ -115,6 +113,15 @@ public class Post {
     }
 
     /**
+     * get comments
+     *
+     * @return: comments
+     */
+    public ArrayList<Comment> getComments() {
+        return comments;
+    }
+
+    /**
      * add a comment
      *
      * @param comment: comment to be added
@@ -145,13 +152,8 @@ public class Post {
 
     /**
      * display the post
-     *
-     * @throws PostException: when post was deleted
      **/
-    public void displayPost() throws PostException{
-        if (this.title == null) {
-            throw new PostException("This post was deleted!");
-        }
+    public void displayPost() {
         System.out.println(this.toString());
     }
 
@@ -180,8 +182,9 @@ public class Post {
      * export post to a csv
      *
      * @param post: post to be exported
+     * @throws IOException
      */
-    public void exportPost(Post post) {
+    public void exportPost(Post post) throws IOException {
         try (FileWriter fw = new FileWriter(new File(post.title +".csv"))) {
             fw.append(post.title + ",");
             fw.append(post.authorName + ",");
@@ -189,9 +192,7 @@ public class Post {
             fw.append(post.timestamp.toString());
             
         } catch (IOException e) {
-        
-            e.printStackTrace();
+            throw e;
         }
     }
-
 }

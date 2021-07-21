@@ -21,12 +21,11 @@ public class Comment {
      * Construct a comment - brand new
      *
      * @param authorName: authorname
-     * @param text: text
-     * @param post: post the comment is made on
+     * @param text:       text
+     * @param post:       post the comment is made on
      * @aparam account: account that made the comment
-     * @throws AccessException: when not logged in
      */
-    public Comment(String authorName, String text, Post post, Account account) throws AccessException {
+    public Comment(String authorName, String text, Post post, Account account) {
         this.authorName = authorName;
         this.text = text;
         this.post = post;
@@ -45,10 +44,10 @@ public class Comment {
      * Construct a comment - from previous run of program
      *
      * @param authorName: authorname
-     * @param text: text
-     * @param post: post the comment is made on
+     * @param text:       text
+     * @param post:       post the comment is made on
+     * @param timestamp:  time the comment was made
      * @aparam account: account that made the comment
-     * @param timestamp: time the comment was made
      */
     public Comment(String authorName, String text, Post post, Account account, String timestamp) {
         this.authorName = authorName;
@@ -115,14 +114,8 @@ public class Comment {
 
     /**
      * display comment
-     *
-     * @throws CommentException: when comment is a delted comment
-     * @throws PostException: when post is deleted
      */
-    public void displayComment() throws CommentException, PostException {
-        if (this.text == null) {
-            throw new CommentException("This comment was deleted!");
-        }
+    public void displayComment() {
         post.displayPost();
         System.out.println(this.toString());
     }
@@ -135,5 +128,27 @@ public class Comment {
      */
     public String toString() {
         return account.getUsername() + " - " + timestamp + ": " + text;
+    }
+
+    /**
+     * check if two comments are equal by checking all fields
+     *
+     * @param: comment
+     * @return: boolean T for equal, F for not equal
+     */
+    public boolean equals(Comment comment) {
+        if (this == comment) {
+            return true;
+        }
+        if (!this.authorName.equals(comment.authorName)) {
+            return false;
+        }
+        if (!this.timestamp.equals(comment.timestamp)) {
+            return false;
+        }
+        if (!this.text.equals(comment.text)) {
+            return false;
+        }
+        return true;
     }
 }
