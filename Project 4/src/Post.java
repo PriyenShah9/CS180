@@ -1,5 +1,8 @@
 import java.util.ArrayList;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.time.*;
+import java.util.Scanner;
 
 public class Post {
     private String title;
@@ -9,7 +12,7 @@ public class Post {
     private LocalDateTime timestamp; //e.g. 2010-12-03T11:30
     private ArrayList<Comment> comments;
 
-    public Post(String title, String authorName, String text, Account account) throws PostException, AccessException {
+    public Post(String title, String authorName, String text, Account account, String timeString) throws PostException, AccessException {
         this.title = title;
         this.authorName = authorName;
         this.text = text;
@@ -17,7 +20,7 @@ public class Post {
         this.timestamp = LocalDateTime.now();
         account.addPost(this);
     }
-
+    
     public String getTitle() {
         return title;
     }
@@ -59,6 +62,35 @@ public class Post {
 
     public String toString() {
         return title + "\n" + account.getUsername() + "\t" + timestamp + "\n" + text;
+    }
+
+    public void uploadPost(String filename) throws AccessException, Exception{
+        
+
+        try {
+
+            Scanner sc = new Scanner(new File(filename));  
+            sc.useDelimiter(","); 
+            String[] p1 = {};   
+            int i = 0;
+            while (sc.hasNext()) { 
+                p1[i] = sc.next();
+                i++;
+            }
+            String title = p1[0];
+            String authorName = p1[1];
+            String text = p1[2];
+            String timestamp = LocalDateTime.now().toString();
+
+            Post post = new Post(title, authorName, text, account, timestamp);
+            account.addPost(post);
+            sc.close(); 
+
+        } catch (FileNotFoundException e) {
+            AccessException a = new AccessException(String.format("File does not exist"));
+            throw a;
+        }
+     
     }
 
 }

@@ -35,8 +35,7 @@ public class Account {
         try (Scanner scan = new Scanner(new File(filename))) {
             //details later
         } catch (FileNotFoundException e) {
-            AccountException ae = new AccountException(String.format("Account with %s does not exist!", username));
-            throw ae;
+            
         }
     }
 
@@ -110,11 +109,27 @@ public class Account {
     public void uploadPost(String filename) throws AccessException {
         this.isLoggedIn();
 
-        //file parsing
+        try {
 
-        Post post = new Post()//PUT PARSED INFO HERE
+            Scanner sc = new Scanner(new File(filename));  
+            
+            sc.useDelimiter(","); 
+            String[] p1;   
+            int i = 0;
+            while (sc.hasNext()) { 
+                p1[i] = sc.next();
+                i++;
+            }   
+            Post post = new Post(p1)//PUT PARSED INFO HERE
+            posts.add(post);
+            sc.close();  //closes the scanner  
+        } catch (FileNotFoundException e) {
+            
+        }
 
-        posts.add(post);
+     
+
+     //   posts.add(post);
     }
 
     public void editPost(Post post) {
