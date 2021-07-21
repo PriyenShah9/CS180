@@ -76,37 +76,56 @@ public class Application {
     }
 
     public static void viewAccount(Scanner scan, String username) {
-        System.out.print("Enter the username of the account you would like to view: ");
-        String usernameToBeViewed = scan.nextLine();
-        while (usernameValidity(usernameToBeViewed) != null) {
-            System.out.print("Couldn't find username. Try again: ");
-            usernameToBeViewed = scan.nextLine();
-        }
-        Account a = usernameValidity(usernameToBeViewed);
-        System.out.println("Here are " + usernameToBeViewed + "'s posts.");
-        for (int i = 0; i < a.getPosts().size(); i++) {
-            a.getPosts().get(i).displayPost();
-            System.out.println();
-        }
-        System.out.print("Would you like to make a comment(c) on a post or go back(b)? ");
-        String ans = scan.nextLine();
-        while (!(ans.equalsIgnoreCase("c") || ans.equalsIgnoreCase("b"))) {
-            System.out.println("You must answer with \"c\" or \"b\".");
-            System.out.print("Would you like to make a comment(c) on a post or go back(b)? ");
-            ans = scan.nextLine();
-        }
-        if (ans.equalsIgnoreCase("b")) {
-            return;
-        } else {
-            System.out.print("Enter the title of the post you would like to make a comment to.");
-            String title = scan.nextLine();
-            while (getPostIndex(title, a) == -1) {
-                System.out.print("Post with title " + title + "could not be found. Try again: ");
-                title = scan.nextLine();
+        boolean loop = true;
+        while (loop) {
+            System.out.print("Enter the username of the account you would like to view: ");
+            String usernameToBeViewed = scan.nextLine();
+            while (usernameValidity(usernameToBeViewed) != null) {
+                System.out.print("Couldn't find username. Try again: ");
+                usernameToBeViewed = scan.nextLine();
             }
-            System.out.println("What would you like to comment on this post.");
-            String comment = scan.nextLine();
-            
+            Account a = usernameValidity(usernameToBeViewed);
+            Account commenting = usernameValidity(username);
+            System.out.println("Here are " + usernameToBeViewed + "'s posts.");
+            for (int i = 0; i < a.getPosts().size(); i++) {
+                a.getPosts().get(i).displayPost();
+                System.out.println();
+            }
+            System.out.print("Would you like to make a comment(c) on a post or go back(b)? ");
+            String ans = scan.nextLine();
+            while (!(ans.equalsIgnoreCase("c") || ans.equalsIgnoreCase("b"))) {
+                System.out.println("You must answer with \"c\" or \"b\".");
+                System.out.print("Would you like to make a comment(c) on a post or go back(b)? ");
+                ans = scan.nextLine();
+            }
+            if (ans.equalsIgnoreCase("b")) {
+                return;
+            } else {
+                System.out.print("Enter the title of the post you would like to make a comment to.");
+                String title = scan.nextLine();
+                while (getPostIndex(title, a) == -1) {
+                    System.out.print("Post with title " + title + "could not be found. Try again: ");
+                    title = scan.nextLine();
+                }
+                System.out.println("What would you like to comment on this post.");
+                String comment = scan.nextLine();
+                int postIndex = getPostIndex(title, a);
+                Comment c = new Comment(username, comment, LocalDateTime.now());
+                commenting.makeComment(c);
+                a.getPosts().get(postIndex).addComment(c);
+            }
+            System.out.print("Would you like to make another comment(c) or go back(b)? ");
+            String answer = scan.nextLine();
+            while (!(ans.equalsIgnoreCase("c") || ans.equalsIgnoreCase("b"))) {
+                System.out.println("You must answer with \"c\" or \"b\".");
+                System.out.print("Would you like to make a comment(c) on a post or go back(b)? ");
+                ans = scan.nextLine();
+            }
+            if (ans.equalsIgnoreCase("b")) {
+                return;
+            } else {
+                loop = true;
+            }
         }
     }
 
