@@ -1,52 +1,140 @@
 import java.util.ArrayList;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.time.*;
-import java.util.Scanner;
-
+/**
+ * Project 4 - Post
+ * <p>
+ * The Post class stores information about posts
+ *
+ * @author Team #002, Section Y01
+ * @version July 21, 2021
+ *
+ */
 public class Post {
     private String title;
     private String authorName;
     private final Account account; //account that made it
     private String text;
-    private LocalDateTime timestamp; //e.g. 2010-12-03T11:30
+    private String timestamp; //e.g. 2010-12-03T11:30
     private ArrayList<Comment> comments;
 
-    public Post(String title, String authorName, String text, Account account, String timeString) throws PostException, AccessException {
+    /**
+     * Constructs a new post - for use with a brand new post
+     *
+     * @param title: title
+     * @param authorName: author name
+     * @param text: text contents
+     * @param account: account that made the post
+     * @throws PostException: when a post with that title already exists
+     * @throws AccessException: when not logged into the account
+     */
+    public Post(String title, String authorName, String text, Account account) throws PostException, AccessException {
         this.title = title;
         this.authorName = authorName;
         this.text = text;
         this.account = account;
-        this.timestamp = LocalDateTime.now();
+
+        String time = LocalDateTime.now().toString();
+        time.replaceAll("-", ":");
+        time.replaceAll("T", ":");
+        time = time.substring(5);
+        this.timestamp = time;
         account.addPost(this);
     }
-    
+
+    /**
+     * Constructs a new post - for use with retrieval
+     * from previous data
+     *
+     * @param title: title
+     * @param authorName: author name
+     * @param text: text contents
+     * @param account: account that made the post
+     * @param timestamp: current time (local machine)
+     */
+    public Post(String title, String authorName, String text, Account account, String timestamp) {
+        this.title = title;
+        this.authorName = authorName;
+        this.text = text;
+        this.account = account;
+        this.timestamp = timestamp;
+    }
+
+    /**
+     * get title
+     *
+     * @return: title
+     */
     public String getTitle() {
         return title;
     }
 
+    /**
+     * get author name
+     *
+     * @return: author name
+     */
     public String getAuthorName() {
         return authorName;
     }
 
+    /**
+     * get username
+     *
+     * @return: username
+     */
     public String getAuthorUsername() {
         return account.getUsername();
     }
 
+    /**
+     * get account
+     *
+     * @return: account that made the post
+     */
+    public Account getAccount() {
+        return account;
+    }
+
+    /**
+     * get timestamp
+     *
+     * @return: timestamp
+     */
     public String getTimeStamp() {
         return timestamp.toString();
     }
 
+    /**
+     * get number of comments
+     *
+     * @return: number of comments
+     */
     public int getNumComments() {
         return comments.size();
     }
 
+    /**
+     * add a comment
+     *
+     * @param comment: comment to be added
+     */
     public void addComment(Comment comment) {
         comments.add(comment);
     }
 
+    /**
+     * delete a comment
+     *
+     * @param comment: comment to be deleted
+     */
+    public void deleteComment(Comment comment) {
+        comments.remove(comment);
+    }
+
+    /**
+     * delete post by setting all fields to null
+     */
     public void deletePost() {
         title = null;
         authorName = null;
@@ -55,6 +143,11 @@ public class Post {
         timestamp = null;
     }
 
+    /**
+     * display the post
+     *
+     * @throws PostException: when post was deleted
+     **/
     public void displayPost() throws PostException{
         if (this.title == null) {
             throw new PostException("This post was deleted!");
@@ -62,38 +155,33 @@ public class Post {
         System.out.println(this.toString());
     }
 
+    /**
+     * format post as string
+     *
+     * @return: string of post
+     *  title
+     *  username    timestamp
+     *  text
+     */
     public String toString() {
         return title + "\n" + account.getUsername() + "\t" + timestamp + "\n" + text;
     }
 
-    public void uploadPost(String filename) throws AccessException, Exception{
-        try {
-
-            Scanner sc = new Scanner(new File(filename));  
-            sc.useDelimiter(","); 
-            String[] p1 = {};   
-            int i = 0;
-            while (sc.hasNext()) { 
-                p1[i] = sc.next();
-                i++;
-            }
-            String title = p1[0];
-            String authorName = p1[1];
-            String text = p1[2];
-            String timestamp = LocalDateTime.now().toString();
-
-            Post post = new Post(title, authorName, text, account, timestamp);
-            account.addPost(post);
-            sc.close(); 
-
-        } catch (FileNotFoundException e) {
-            AccessException a = new AccessException(String.format("File does not exist"));
-            throw a;
-        }
-     
+    /**
+     * edit text
+     *
+     * @param text: new text
+     */
+    public void editText(String text) {
+        this.text = text;
     }
-    public void exportPost(Post post){
 
+    /**
+     * export post to a csv
+     *
+     * @param post: post to be exported
+     */
+    public void exportPost(Post post) {
         try (FileWriter fw = new FileWriter(new File(post.title +".csv"))) {
             fw.append(post.title + ",");
             fw.append(post.authorName + ",");
