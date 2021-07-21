@@ -107,7 +107,7 @@ public class Application {
         System.out.println("To edit an account you must login.");
         System.out.print("Username: ");
         String username = scan.nextLine();
-        while(usernameValidity(username) != null) {
+        while(usernameValidity(username) == null) {
             System.out.println("Username does not exist. Create account(c) or try again: ");
             username = scan.nextLine();
             if (username.equalsIgnoreCase("c")) {
