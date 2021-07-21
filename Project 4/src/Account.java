@@ -15,7 +15,6 @@ import java.util.Scanner;
  *
  */
 public class Account {
-    private static ArrayList<Account> accounts; //TEMPORARY SOLUTION
     private String username;
     private String password;
     private String name;
@@ -24,20 +23,16 @@ public class Account {
     private boolean loggedIn = false; //by default not logged in
 
     //create an account
-    public Account(String username, String password, String name) throws AccountException {
-        for (Account i : accounts) { //temporary solution?
-            if (i.username.equals(username)) {
-                throw new AccountException("Username taken!");
-            }
-        }
+    public Account(String name, String username, String password, ArrayList<Account> accounts, boolean loggedIn) throws AccountException {
+
         this.username = username;
         this.password = password;
         this.name = name;
-        this.loggedIn = true;
+        this.loggedIn = loggedIn;
     }
 
-    public Account(String username) throws AccountException { //to be loaded if it existed previously
-        try (Scanner scan = new Scanner(new File("username.txt"))) {
+    public Account(String filename) throws AccountException { //to be loaded if it existed previously
+        try (Scanner scan = new Scanner(new File(filename))) {
             //details later
         } catch (FileNotFoundException e) {
             AccountException ae = new AccountException(String.format("Account with %s does not exist!", username));
@@ -63,14 +58,13 @@ public class Account {
     // user can log out and data will be saved
     public void logOut() {
         loggedIn = false;
-        //TODO
-     }
+    }
 
     public String getUsername() {
         return username;
     }
 
-    public void changeUsername(String username) throws AccessException, AccountException {
+    public void changeUsername(String username, ArrayList<Account> accounts) throws AccessException, AccountException {
         this.isLoggedIn();
 
         for (Account i : accounts) { //temporary solution?
@@ -107,14 +101,20 @@ public class Account {
         posts.add(post);
     }
 
-    public void uploadPost(File filename) { //from a csv
-        //TODO
-    }
-
     public void displayPosts() throws PostException {
         for (Post i : posts) {
             i.displayPost();
         }
+    }
+
+    public void uploadPost(String filename) throws AccessException {
+        this.isLoggedIn();
+
+        //file parsing
+
+        Post post = new Post()//PUT PARSED INFO HERE
+
+        posts.add(post);
     }
 
     public void editPost(Post post) {
@@ -174,14 +174,5 @@ public class Account {
         this.posts = null;
         this.commentsMade = null;
         this.loggedIn = false;
-    }
-    
-    public Account findAccount(String name) throws AccountException{
-        for( Account account : accounts){
-            if(account.getUsername().equals(name)){
-                return account;
-            }
-        }
-        throw new AccountException("User not found!");
     }
 }
