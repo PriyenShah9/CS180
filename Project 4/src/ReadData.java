@@ -58,7 +58,6 @@ public class ReadData {
                 newPost = new Post(postTitle, newAccount.getUsername(), text, newAccount, timeStamp, postComments);
                 newAccount.addPost(newPost);
 
-                boolean comment = false;
                 if (splitPosts.length > 3) {
                     for (int i = 3; i < splitPosts.length; i++) {
                         String[] commentData = splitPosts[i].split(";");
@@ -69,20 +68,14 @@ public class ReadData {
                 }
 
                 for (int t = 0; t < comments.size(); t++) {
-                    if (newPost.equals(comments.get(t).getPost())) {
-                        newPost.addComment(comments.get(t));
-                    }
                     for (int u = 0; u < accounts.size(); u++) {
                         if (newComment != null && newComment.getAuthorName().equals(accounts.get(u).getUsername())) {
                             newComment.setAccount(accounts.get(u));
+                            accounts.get(u).makeComment(newComment);
                         }
                     }
                 }
-                for (int t = 0; t < comments.size(); t++) {
-                    if (comments.get(t).getAccount().equals(newAccount)) {
-                        newAccount.makeComment(comments.get(t));
-                    }
-                }
+
                 posts.add(newPost);
             }
             return;
@@ -118,7 +111,6 @@ public class ReadData {
                 pw.print("$" + postTitle + " " + postText + " " + postTimeStamp + " ");
                 ArrayList<Comment> postComments = accountPosts.get(j).getComments();
                 for (int w = 0; w < postComments.size(); w++) {
-                    System.out.println("hi");
                     String comment = postComments.get(w).getText().replaceAll(" ", "_");
                     String author = postComments.get(w).getPost().getAuthorUsername().replaceAll(" ", "_");
                     String commentTimeStamp = postComments.get(w).getTimestamp();

@@ -24,8 +24,6 @@ public class Application {
             comments = ReadData.comments;
         }
 
-        System.out.println(accounts.size());
-
         Scanner scan = new Scanner(System.in);
         String username = "";
         while (true) {
@@ -137,6 +135,7 @@ public class Application {
 
     public static void viewAccount(Scanner scan, String username) {
         Account commenting = usernameValidity(username);
+        System.out.println(commenting.getComments().size());
         try {
             commenting.isLoggedIn();
         } catch (AccessException e) {
