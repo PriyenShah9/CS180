@@ -6,10 +6,13 @@ public class ReadData {
     public static ArrayList<Account> accounts = new ArrayList<Account>();
     public static ArrayList<Post> posts = new ArrayList<Post>();
     public static ArrayList<Comment> comments = new ArrayList<Comment>();
-    private String fileName;
+    private static String fileName;
 
-    public ReadData(String fileName) throws FileNotFoundException {
+    public ReadData(String fileName) {
         this.fileName = fileName;
+    }
+
+    public static void read() throws FileNotFoundException {
         File input = new File(fileName);
         FileReader fr = new FileReader(input);
         try (BufferedReader bfr = new BufferedReader(fr)) {
@@ -80,6 +83,7 @@ public class ReadData {
             }
             return;
         }
+        accounts.add(newAccount);
     }
 
     public static ArrayList<Account> getAccounts() {
