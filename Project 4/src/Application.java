@@ -1,10 +1,19 @@
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Scanner;
 import java.util.ArrayList;
 import java.time.LocalDateTime;
 
+/**
+ * Project 4 - Application
+ * <p>
+ * The Application class is the class that
+ * does all the interactions with the user.
+ *
+ * @author Team #002, Section Y01
+ * @version July 21, 2021
+ *
+ */
 public class Application {
 
     private static ArrayList<Account> accounts = new ArrayList<Account>();
@@ -12,17 +21,15 @@ public class Application {
     private static ArrayList<Comment> comments = new ArrayList<Comment>();
 
     public static void main(String[] args) throws AccountException {
-        File f = new File("storagefile.txt");
-        if (f.exists()) {
-            try {
-                ReadData data = new ReadData("storagefile.txt");
-            } catch (FileNotFoundException e) {
-                System.out.println("Error loading previous data.");
-            }
-            accounts = ReadData.accounts;
-            posts = ReadData.posts;
-            comments = ReadData.comments;
+        ReadData data = new ReadData("storagefile.txt");
+        try {
+            data.read();
+        } catch (FileNotFoundException e) {
+            System.out.println("There are no existing accounts");
         }
+        accounts = ReadData.accounts;
+        posts = ReadData.posts;
+        comments = ReadData.comments;
 
         Scanner scan = new Scanner(System.in);
         String username = "";
@@ -48,11 +55,14 @@ public class Application {
                 if (username.equals("")) {
                     username = login(scan);
                 }
+                Account a = usernameValidity(username);
+                if (firstAnswer.equals("6")) {
+                    username = "";
+                    a.logOut();
+                }
                 if (firstAnswer.equals("2")) {
                     editAccount(scan, username);
                 } else if (firstAnswer.equals("3")) {
-                    System.out.println(username);
-                    Account a = usernameValidity(username);
                     try {
                         a.isLoggedIn();
                     } catch (AccessException e) {
@@ -79,11 +89,11 @@ public class Application {
 
 
     public static String createAccountQuestion(Scanner scan) {
-        System.out.print("Would you like to create(1), edit(2), delete(3), view(4) an account or exit the program(5)? ");
+        System.out.print("Would you like to create(1), edit(2), delete(3), view(4) an account, exit the program(5), or log out(6)? ");
         String ans = scan.nextLine();
-        while (!(ans.equals("1")) && !(ans.equals("2")) && !(ans.equals("3")) && !(ans.equals("4")) && !(ans.equals("5"))) {
-            System.out.println("You must answer with either 1, 2, 3, 4, or 5.");
-            System.out.print("Would you like to create(1), edit(2), delete(3), view(4) an account or exit the program(5)? ");
+        while (!(ans.equals("1")) && !(ans.equals("2")) && !(ans.equals("3")) && !(ans.equals("4")) && !(ans.equals("5") && !(ans.equals("6")))) {
+            System.out.println("You must answer with either 1, 2, 3, 4, 5, or 6.");
+            System.out.print("Would you like to create(1), edit(2), delete(3), view(4) an account, exit the program(5), or log out(6)? ");
             ans = scan.nextLine();
         }
         return ans;
@@ -195,28 +205,24 @@ public class Application {
                     title = scan.nextLine();
                 }
                 int postIndex = getPostIndex(title, a);
+                System.out.println("Here are the comments made by you.");
                 ArrayList<Comment> commentsPost = displayComments(commenting, a.getPosts().get(postIndex));
-                if (commentsPost.size() != 0) {
-                    System.out.println("Here are the comments made by you.");
-                    for (Comment i : commentsPost) {
-                        i.displayComment();
-                    }
-                    System.out.println("Enter the context of the comment you would like to edit. ");
-                    String context = scan.nextLine();
-                    while (findComment(context, comments) == -1) {
-                        System.out.println("This comment does not exist. Try again: ");
-                        context = scan.nextLine();
-                    }
-                    int commentPostIndex = findComment(context, a.getPosts().get(postIndex).getComments());
-                    int commentAccountIndex = findComment(context, commenting.getComments());
-                    System.out.println("What would you like to change your comment to?");
-                    String changedContext = scan.nextLine();
-                    a.getPosts().get(postIndex).getComments().get(commentPostIndex).editComment(changedContext);
-                    commenting.getComments().get(commentAccountIndex).editComment(changedContext);
-                    System.out.println("Your change was made ");
-                } else {
-                    System.out.println("You have not made any comments on this post");
+                for (Comment i : commentsPost) {
+                    i.displayComment();
                 }
+                System.out.println("Enter the context of the comment you would like to edit. ");
+                String context = scan.nextLine();
+                while (findComment(context, comments) == -1) {
+                    System.out.println("This comment does not exist. Try again: ");
+                    context = scan.nextLine();
+                }
+                int commentPostIndex = findComment(context, a.getPosts().get(postIndex).getComments());
+                int commentAccountIndex = findComment(context, commenting.getComments());
+                System.out.println("What would you like to change your comment to?");
+                String changedContext = scan.nextLine();
+                a.getPosts().get(postIndex).getComments().get(commentPostIndex).editComment(changedContext);
+                commenting.getComments().get(commentAccountIndex).editComment(changedContext);
+                System.out.println("Your change was made ");
             } else if (ans.equalsIgnoreCase("d")) {
                 System.out.print("Enter the title of the post you would like to delete a comment on.");
                 String title = scan.nextLine();
@@ -386,4 +392,5 @@ public class Application {
 
 
 }
+
 
