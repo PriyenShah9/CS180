@@ -14,7 +14,7 @@ public class Comment {
     private String authorName;
     private String text;
     private final Post post; //post the comment was posted on
-    private final Account account; //account that made the comment
+    private Account account; //account that made the comment
     private String timestamp;
 
     /**
@@ -54,6 +54,15 @@ public class Comment {
         this.account = account;
         this.timestamp = timestamp;
         post.addComment(this);
+    }
+
+    /**
+     * set account (used by readdata only)
+     *
+     * @param account: account
+     */
+    public void setAccount(Account account) {
+        this.account = account;
     }
 
     /**
@@ -123,7 +132,6 @@ public class Comment {
      * display comment
      */
     public void displayComment() {
-        post.displayPost();
         System.out.println(this.toString());
     }
 

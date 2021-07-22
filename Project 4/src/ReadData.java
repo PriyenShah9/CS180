@@ -36,10 +36,11 @@ public class ReadData {
 
     private static void createInformation(String line, String postLine) {
         String[] splitLine = line.split(" ");
-        String username = splitLine[0].replaceAll("_", " ");
-        String password = splitLine[1];
-        String name = splitLine[2];
+        String name = splitLine[0].replaceAll("_", " ");
+        String username = splitLine[1];
+        String password = splitLine[2];
         Account newAccount = new Account(name, username, password);
+        accounts.add(newAccount);
 
 
         if (postLine.length() != 0) {
@@ -50,17 +51,19 @@ public class ReadData {
                 String postTitle = splitPosts[0].replaceAll("_", " ");
                 String text = splitPosts[1].replaceAll("_", " ");
                 String timeStamp = splitPosts[2];
-                Comment newComment;
+                Comment newComment = null;
                 Post newPost;
                 ArrayList<Comment> postComments = new ArrayList<Comment>();
 
                 newPost = new Post(postTitle, newAccount.getUsername(), text, newAccount, timeStamp, postComments);
                 newAccount.addPost(newPost);
 
+                boolean comment = false;
                 if (splitPosts.length > 3) {
                     for (int i = 3; i < splitPosts.length; i++) {
                         String[] commentData = splitPosts[i].split(";");
-                        newComment = new Comment(commentData[0], commentData[1].replaceAll("_", " "), newPost, newAccount, commentData[2]);
+                        Account dummy = new Account(null, commentData[1], null);
+                        newComment = new Comment(commentData[1], commentData[0].replaceAll("_", " "), newPost, dummy, commentData[2]);
                         comments.add(newComment);
                     }
                 }
@@ -69,13 +72,17 @@ public class ReadData {
                     if (newPost.equals(comments.get(t).getPost())) {
                         newPost.addComment(comments.get(t));
                     }
+                    for (int u = 0; u < accounts.size(); u++) {
+                        if (newComment != null && newComment.getAuthorName().equals(accounts.get(u).getUsername())) {
+                            newComment.setAccount(accounts.get(u));
+                        }
+                    }
                 }
                 for (int t = 0; t < comments.size(); t++) {
                     if (comments.get(t).getAccount().equals(newAccount)) {
                         newAccount.makeComment(comments.get(t));
                     }
                 }
-                accounts.add(newAccount);
                 posts.add(newPost);
             }
             return;
@@ -96,8 +103,7 @@ public class ReadData {
     }
 
     public static void writeChangesToFile(String fileName) throws FileNotFoundException {
-        File output = new File(fileName);
-        PrintWriter pw = new PrintWriter(output);
+        PrintWriter pw = new PrintWriter(new FileOutputStream(fileName, false));
 
         for (int i = 0; i < accounts.size(); i++) {
             String accountName = accounts.get(i).getName().replaceAll(" ", "_");
@@ -112,10 +118,11 @@ public class ReadData {
                 pw.print("$" + postTitle + " " + postText + " " + postTimeStamp + " ");
                 ArrayList<Comment> postComments = accountPosts.get(j).getComments();
                 for (int w = 0; w < postComments.size(); w++) {
+                    System.out.println("hi");
                     String comment = postComments.get(w).getText().replaceAll(" ", "_");
-                    String author = postComments.get(w).getAuthorName().replaceAll(" ", "_");
+                    String author = postComments.get(w).getPost().getAuthorUsername().replaceAll(" ", "_");
                     String commentTimeStamp = postComments.get(w).getTimestamp();
-                    pw.print(comment + ";" + author + " " + commentTimeStamp);
+                    pw.print(comment + ";" + author + ";" + commentTimeStamp);
                 }
             }
             pw.println();

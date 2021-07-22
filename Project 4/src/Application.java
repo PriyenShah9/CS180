@@ -24,6 +24,8 @@ public class Application {
             comments = ReadData.comments;
         }
 
+        System.out.println(accounts.size());
+
         Scanner scan = new Scanner(System.in);
         String username = "";
         while (true) {
@@ -237,12 +239,12 @@ public class Application {
             }
             System.out.print("Would you like to view more accounts(c) or go back(b)? ");
             String answer = scan.nextLine();
-            while (!(ans.equalsIgnoreCase("c") && !(ans.equalsIgnoreCase("b")))) {
+            while (!(answer.equalsIgnoreCase("c")) && !(answer.equalsIgnoreCase("b"))) {
                 System.out.println("You must answer with \"c\" or \"b\".");
                 System.out.print("Would you like to view more accounts(c) or go back(b)? ");
-                ans = scan.nextLine();
+                answer = scan.nextLine();
             }
-            if (ans.equalsIgnoreCase("b")) {
+            if (answer.equalsIgnoreCase("b")) {
                 return;
             } else {
                 loop = true;
