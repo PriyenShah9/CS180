@@ -42,15 +42,12 @@ public class Account {
      * @param name: name
      * @param username: unique username
      * @param password: password to allow access
-     * @param posts: all posts made
-     * @param comments: all comments made
      */
-    public Account(String name, String username, String password, ArrayList<Post> posts, ArrayList<Comment> comments) {
+    public Account(String name, String username, String password) {
         this.username = username;
         this.password = password;
         this.name = name;
         this.posts = posts;
-        this.commentsMade = comments;
     }
 
     /**

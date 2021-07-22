@@ -39,6 +39,8 @@ public class ReadData {
         String username = splitLine[0].replaceAll("_", " ");
         String password = splitLine[1];
         String name = splitLine[2];
+        Account newAccount = new Account(name, username, password);
+
 
         if (postLine.length() != 0) {
             String[] postInformation = postLine.split("\\$");
@@ -50,14 +52,11 @@ public class ReadData {
                 String timeStamp = splitPosts[2];
                 Comment newComment;
                 Post newPost;
-                Account newAccount;
-                ArrayList<Post> userPosts = new ArrayList<Post>();
                 ArrayList<Comment> postComments = new ArrayList<Comment>();
 
-                newAccount = new Account(name, username, password, userPosts, null);
                 newPost = new Post(postTitle, newAccount.getUsername(), text, newAccount, timeStamp, postComments);
+                newAccount.addPost(newPost);
 
-                System.out.println(splitPosts.length);
                 if (splitPosts.length > 3) {
                     for (int i = 3; i < splitPosts.length; i++) {
                         String[] commentData = splitPosts[i].split(";");
@@ -66,12 +65,14 @@ public class ReadData {
                     }
                 }
 
-                if (newAccount.equals(newPost.getAccount())) {
-                    newAccount.addPost(newPost);
-                }
                 for (int t = 0; t < comments.size(); t++) {
                     if (newPost.equals(comments.get(t).getPost())) {
                         newPost.addComment(comments.get(t));
+                    }
+                }
+                for (int t = 0; t < comments.size(); t++) {
+                    if (comments.get(t).getAccount().equals(newAccount)) {
+                        newAccount.makeComment(comments.get(t));
                     }
                 }
                 accounts.add(newAccount);
@@ -79,11 +80,6 @@ public class ReadData {
             }
             return;
         }
-        ArrayList<Post> tempPosts = new ArrayList<>();
-        tempPosts.add(null);
-        ArrayList<Comment> tempComments = new ArrayList<>();
-        tempComments.add(null);
-        Account newAccount = new Account(name, username, password, tempPosts, tempComments);
         accounts.add(newAccount);
     }
 

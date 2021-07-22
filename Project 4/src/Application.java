@@ -158,7 +158,6 @@ public class Application {
                 return;
             }
             System.out.println("Here are " + usernameToBeViewed + "'s posts.");
-            System.out.println(a.getPosts().size());
             for (int i = 0; i < a.getPosts().size(); i++) {
                 a.getPosts().get(i).displayPost();
                 System.out.println();
@@ -187,7 +186,7 @@ public class Application {
                 Comment c = new Comment(username, comment, a.getPosts().get(postIndex), commenting);
                 commenting.makeComment(c);
                 a.getPosts().get(postIndex).addComment(c);
-                System.out.print("Comment was made.");
+                System.out.print("Comment was made. ");
             } else if (ans.equalsIgnoreCase("e")) {
                 System.out.print("Enter the title of the post you would like to edit a comment on.");
                 String title = scan.nextLine();
