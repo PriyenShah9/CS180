@@ -9,7 +9,7 @@ make posts, and add comments to posts (Option 1)
 3. [Class Post](#class-post)
 4. [Class Comment](#class-comment)
 5. [Exceptions](#exceptions)
-6. [Test Case] (#test-cases)
+6. [Test Case](#test-cases)
 ***
 ** Class Application
 This class runs the main method of the program that interacts with the user. 
