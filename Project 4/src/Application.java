@@ -135,7 +135,6 @@ public class Application {
 
     public static void viewAccount(Scanner scan, String username) {
         Account commenting = usernameValidity(username);
-        System.out.println(commenting.getComments().size());
         try {
             commenting.isLoggedIn();
         } catch (AccessException e) {
@@ -189,7 +188,7 @@ public class Application {
                 a.getPosts().get(postIndex).addComment(c);
                 System.out.print("Comment was made. ");
             } else if (ans.equalsIgnoreCase("e")) {
-                System.out.print("Enter the title of the post you would like to edit a comment on.");
+                System.out.print("Enter the title of the post you would like to edit a comment on. ");
                 String title = scan.nextLine();
                 while (getPostIndex(title, a) == -1) {
                     System.out.print("Post with title " + title + "could not be found. Try again: ");
@@ -197,8 +196,11 @@ public class Application {
                 }
                 int postIndex = getPostIndex(title, a);
                 System.out.println("Here are the comments made by you.");
-                ArrayList<Comment> comments = displayComments(commenting, a.getPosts().get(postIndex));
-                System.out.println("Enter the context of the comment you would like to edit.");
+                ArrayList<Comment> commentsPost = displayComments(commenting, a.getPosts().get(postIndex));
+                for (Comment i : commentsPost) {
+                    i.displayComment();
+                }
+                System.out.println("Enter the context of the comment you would like to edit. ");
                 String context = scan.nextLine();
                 while (findComment(context, comments) == -1) {
                     System.out.println("This comment does not exist. Try again: ");
@@ -360,11 +362,9 @@ public class Application {
 
     public static ArrayList<Comment> displayComments(Account a, Post p) {
         ArrayList<Comment> comments = new ArrayList<Comment>();
-        for (int i = 0; i < a.getComments().size(); i++) {
-            for (int j = 0; j < p.getComments().size(); j++) {
-                if (a.getComments().get(i).equals(p.getComments().get(j))) {
-                    comments.add(p.getComments().get(j));
-                }
+        for (int j = 0; j < p.getComments().size(); j++) {
+            if (p.getComments().get(j).getAccount().getUsername().equals(a.getUsername())) {
+                comments.add(p.getComments().get(j));
             }
         }
         return comments;

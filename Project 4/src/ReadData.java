@@ -42,8 +42,7 @@ public class ReadData {
         Account newAccount = new Account(name, username, password);
         accounts.add(newAccount);
 
-
-        if (postLine.length() != 0) {
+        if (postLine != null && postLine.length() != 0) {
             String[] postInformation = postLine.split("\\$");
 
             for (int w = 1; w < postInformation.length; w++) { //start 1 b/c first element is ""
@@ -67,16 +66,17 @@ public class ReadData {
                     }
                 }
 
-                for (int t = 0; t < comments.size(); t++) {
-                    for (int u = 0; u < accounts.size(); u++) {
-                        if (newComment != null && newComment.getAuthorName().equals(accounts.get(u).getUsername())) {
-                            newComment.setAccount(accounts.get(u));
-                            accounts.get(u).makeComment(newComment);
-                        }
+                posts.add(newPost);
+            }
+
+            //add comments to account array of commentsMade
+            for (int t = 0; t < accounts.size(); t++) {
+                for (int u = 0; u < comments.size(); u++) {
+                    if (comments.get(u) != null && comments.get(u).getAuthorName().equals(accounts.get(t).getUsername())) {
+                        comments.get(u).setAccount(accounts.get(t));
+                        accounts.get(t).makeComment(comments.get(u));
                     }
                 }
-
-                posts.add(newPost);
             }
             return;
         }
@@ -114,7 +114,7 @@ public class ReadData {
                     String comment = postComments.get(w).getText().replaceAll(" ", "_");
                     String author = postComments.get(w).getPost().getAuthorUsername().replaceAll(" ", "_");
                     String commentTimeStamp = postComments.get(w).getTimestamp();
-                    pw.print(comment + ";" + author + ";" + commentTimeStamp);
+                    pw.print(comment + ";" + author + ";" + commentTimeStamp + " ");
                 }
             }
             pw.println();
