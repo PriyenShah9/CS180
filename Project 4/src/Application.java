@@ -207,22 +207,27 @@ public class Application {
                 int postIndex = getPostIndex(title, a);
                 System.out.println("Here are the comments made by you.");
                 ArrayList<Comment> commentsPost = displayComments(commenting, a.getPosts().get(postIndex));
-                for (Comment i : commentsPost) {
-                    i.displayComment();
+                if (commentsPost.size() != 0) {
+                    System.out.println("Here are the comments made by you.");
+                    for (Comment i : commentsPost) {
+                        i.displayComment();
+                    }
+                    System.out.println("Enter the context of the comment you would like to edit. ");
+                    String context = scan.nextLine();
+                    while (findComment(context, comments) == -1) {
+                        System.out.println("This comment does not exist. Try again: ");
+                        context = scan.nextLine();
+                    }
+                    int commentPostIndex = findComment(context, a.getPosts().get(postIndex).getComments());
+                    int commentAccountIndex = findComment(context, commenting.getComments());
+                    System.out.println("What would you like to change your comment to?");
+                    String changedContext = scan.nextLine();
+                    a.getPosts().get(postIndex).getComments().get(commentPostIndex).editComment(changedContext);
+                    commenting.getComments().get(commentAccountIndex).editComment(changedContext);
+                    System.out.println("Your change was made ");
+                } else {
+                    System.out.println("You have not made any comments on this post");
                 }
-                System.out.println("Enter the context of the comment you would like to edit. ");
-                String context = scan.nextLine();
-                while (findComment(context, comments) == -1) {
-                    System.out.println("This comment does not exist. Try again: ");
-                    context = scan.nextLine();
-                }
-                int commentPostIndex = findComment(context, a.getPosts().get(postIndex).getComments());
-                int commentAccountIndex = findComment(context, commenting.getComments());
-                System.out.println("What would you like to change your comment to?");
-                String changedContext = scan.nextLine();
-                a.getPosts().get(postIndex).getComments().get(commentPostIndex).editComment(changedContext);
-                commenting.getComments().get(commentAccountIndex).editComment(changedContext);
-                System.out.println("Your change was made ");
             } else if (ans.equalsIgnoreCase("d")) {
                 System.out.print("Enter the title of the post you would like to delete a comment on.");
                 String title = scan.nextLine();

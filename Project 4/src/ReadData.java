@@ -83,7 +83,6 @@ public class ReadData {
             }
             return;
         }
-        accounts.add(newAccount);
     }
 
     public static ArrayList<Account> getAccounts() {
