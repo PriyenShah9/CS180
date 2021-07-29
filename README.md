@@ -1,7 +1,8 @@
 # CS180 - Project 5 - Team #002
 ***
 A social media application that allows users to create accounts,
-make posts, and add comments to posts (Option 1)
+make posts, and add comments to posts (Option 1). Project 5 extensions
+adds a GUI, network, and the use of concurrency.
 ***
 ** Table of Contents
 1. [Instructions] (#instructions)
@@ -18,8 +19,17 @@ Compile as usual, making sure all files are in the same directory.
 Run ApplicationServer first, then start ApplicationClient. It should automatically connect. 
 ***
 ** Class ApplicationClient
+This class is one half of the Application class that runs on the user end. It's main purpose is to 
+display the GUI and interact with the user. It displays posts and comments, and accepts user input 
+via buttons or the keyboard. Information is sent between this class and the ApplicationServer class.
 ***
 ** Class ApplicationServer
+This class is the other half of the Application class and runs on the server end. It's main purpose
+is to hold the data of the application and do computations. For example, if ApplicationClient requests
+to view an account's posts, the ApplicationServer will find the account and send the posts to the 
+ApplicationClient to display. 
+
+This class also implements concurrency, which is discussed in a later section.
 ***
 ** Classes Account, Post, Comment, Exceptions
 ** Class Application
@@ -57,6 +67,10 @@ descriptions given here.
 4. CommentException - occurs when there are isseus creating or retrieving a comment. 
 ***
 ** Concurrency
+Concurrency is implemented on the ApplicationServer class and allows many users to be connected
+at the same time. Threads and the Runnable interface are used to carry out this task and synchronized 
+blocks are used to eliminate race conditions. There are three static ArrayLists for Accounts, Posts, and Comments
+in order to store information that is accessible to all threads. 
 ***
 ** Submission Responsibilities
 Submission to Vocareum - 
