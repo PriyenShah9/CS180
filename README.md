@@ -12,6 +12,7 @@ adds a GUI, network, and the use of concurrency.
 5. [Concurrency](#concurrency)
 ***
 ** Instructions
+
 Compile as usual, making sure all files are in the same directory.
   If using IntelliJ and if there is a .csv file or a storagefile.txt with desired "previous run" information, 
   these should be placed in the same directory as the module containing the program files.
@@ -19,6 +20,7 @@ Compile as usual, making sure all files are in the same directory.
 Run ApplicationServer first, then start ApplicationClient. It should automatically connect. 
 ***
 ** Class ApplicationClient
+
 This class is one half of the Application class that runs on the user end. It's main purpose is to 
 display the GUI and interact with the user. It displays posts and comments, and accepts user input 
 via buttons or the keyboard. Information is sent between this class and the ApplicationServer class.
@@ -33,6 +35,7 @@ This class also implements concurrency, which is discussed in a later section.
 ***
 ** Classes Account, Post, Comment, Exceptions
 ** Class Application
+
 This class runs the main method of the program that interacts with the user. 
 Users will be prompted to create an account, log in, or exit the application.
 Once logged in using a password, users will be able to make posts or comments and view others'
@@ -59,6 +62,7 @@ This class stores information about each individual comment. These include the u
 the timestamp, and the text contents.
 
 ** Exceptions
+
 When they occur, exceptions come with specialized error messages that are more specific than
 descriptions given here.
 1. AccountException - occurs when there are issues creating or retrieving an account
@@ -67,12 +71,16 @@ descriptions given here.
 4. CommentException - occurs when there are isseus creating or retrieving a comment. 
 ***
 ** Concurrency
+
 Concurrency is implemented on the ApplicationServer class and allows many users to be connected
 at the same time. Threads and the Runnable interface are used to carry out this task and synchronized 
 blocks are used to eliminate race conditions. There are three static ArrayLists for Accounts, Posts, and Comments
 in order to store information that is accessible to all threads. 
 ***
 ** Submission Responsibilities
+
 Submission to Vocareum - 
+
 Submission of Report to Brightspace - 
+
 Submission of Presentation to Brightspace - Crystal
