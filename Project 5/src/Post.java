@@ -13,7 +13,6 @@ import java.time.*;
 public class Post {
     private String title;
     private String authorName;
-    private final Account account; //account that made it
     private String text;
     private String timestamp; //e.g. 2010-12-03T11:30
     private ArrayList<Comment> comments = new ArrayList<Comment>();
@@ -24,18 +23,15 @@ public class Post {
      * @param title: title
      * @param authorName: author name
      * @param text: text contents
-     * @param account: account that made the post
      */
-    public Post(String title, String authorName, String text, Account account) {
+    public Post(String title, String authorName, String text) {
         this.title = title;
         this.authorName = authorName;
         this.text = text;
-        this.account = account;
 
         String time = LocalDateTime.now().toString();
         time = time.substring(5, 19);
         this.timestamp = time;
-        account.addPost(this);
     }
 
     /**
@@ -45,16 +41,13 @@ public class Post {
      * @param title: title
      * @param authorName: author name
      * @param text: text contents
-     * @param account: account that made the post
      * @param timestamp: current time (local machine)
      */
-    public Post(String title, String authorName, String text, Account account, String timestamp, ArrayList<Comment> comments) {
+    public Post(String title, String authorName, String text, String timestamp) {
         this.title = title;
         this.authorName = authorName;
         this.text = text;
-        this.account = account;
         this.timestamp = timestamp;
-        this.comments = comments;
     }
 
     /**
@@ -76,30 +69,12 @@ public class Post {
     }
 
     /**
-     * get username
-     *
-     * @return: username
-     */
-    public String getAuthorUsername() {
-        return account.getUsername();
-    }
-
-    /**
-     * get account
-     *
-     * @return: account that made the post
-     */
-    public Account getAccount() {
-        return account;
-    }
-
-    /**
      * get timestamp
      *
      * @return: timestamp
      */
     public String getTimeStamp() {
-        return timestamp.toString();
+        return timestamp;
     }
 
     /**
@@ -138,13 +113,19 @@ public class Post {
         comments.add(comment);
     }
 
+    public void editComment(int commentIndexPost, String text) {
+        Comment comment = comments.get(commentIndexPost);
+        comment.editComment(text);
+        comments.set(commentIndexPost, comment);
+    }
+
     /**
      * delete a comment
      *
      * @param comment: comment to be deleted
      */
-    public void deleteComment(Comment comment) {
-        comments.remove(comment);
+    public void deleteComment(int index) {
+        comments.remove(index);
     }
 
     /**
@@ -174,7 +155,7 @@ public class Post {
      *  text
      */
     public String toString() {
-        return title + "\n" + account.getUsername() + "\t" + timestamp + "\n" + text;
+        return "Title: " + title + "\nAuthor: " + authorName + "\n" + text + "\n" + timestamp;
     }
 
     /**
