@@ -55,10 +55,8 @@ public class Account {
      *
      * @throws AccessException: when not logged in
      */
-    public void isLoggedIn() throws AccessException {
-        if (!loggedIn) {
-            throw new AccessException("You are not logged in to this account!");
-        }
+    public boolean isLoggedIn() {
+        return loggedIn;
     }
 
     /**
@@ -144,6 +142,7 @@ public class Account {
     public void displayPosts() {
         for (Post i : posts) {
             i.displayPost();
+            System.out.println();
         }
     }
 
@@ -175,7 +174,7 @@ public class Account {
             String authorName = p1[1];
             String text = p1[2];
 
-            Post post = new Post(title, authorName, text, this);
+            Post post = new Post(title, authorName, text);
             this.addPost(post);
             sc.close();
 
@@ -237,29 +236,36 @@ public class Account {
      *
      * @param comment: the comment
      */
-    public void makeComment(Comment comment) {
+    public void makeComment(Comment comment, int postIndex) {
         commentsMade.add(comment);
+        Post p = posts.get(postIndex);
+        p.addComment(comment);
+        posts.set(postIndex, p);
     }
 
     /**
      * edit the text of a comment
      *
-     * @param comment: comment to change
+     *
      * @param text: text of a comment
      */
-    public void editComment(Comment comment, String text) {
-        comment.editComment(text);
+    public void editComment(int commentIndexAccount, int commentIndexPost, int postIndex, String text) {
+        Comment c = commentsMade.get(commentIndexAccount);
+        c.editComment(text);
+        commentsMade.set(commentIndexAccount, c);
+        Post p = posts.get(postIndex);
+        p.editComment(commentIndexPost, text);
+
     }
 
     /**
      * delete a comment
      *
-     * @param comment: comment to delete
+     *
      */
-    public void deleteComment(Comment comment) {
-        comment.getPost().deleteComment(comment);
-        commentsMade.remove(comment);
-        comment.deleteComment();
+    public void deleteComment(int commentIndexAccount, int commentIndexPost, int postIndex) {
+        commentsMade.remove(commentIndexAccount);
+        posts.get(postIndex).deleteComment(commentIndexPost);
     }
 
     /**
