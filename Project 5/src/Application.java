@@ -54,7 +54,12 @@ public class Application {
                 } else if (ans.equals("2")) {
                     viewPosts(scan);
                 } else if (ans.equals("3")) {
-                    //delete
+                    for (int i = 0; i < accounts.size(); i++) {
+                        if (usernameAccountLoggedIn.equals(accounts.get(i).getUsername())) {
+                            accounts.remove(i);
+                        }
+                    }
+                    break;
                 } else if (ans.equals("4")) {
                     makeComment(scan);
                 } else if (ans.equals("5")) {
