@@ -13,8 +13,6 @@ import java.time.LocalDateTime;
 public class Comment {
     private String authorName;
     private String text;
-    private final Post post; //post the comment was posted on
-    private Account account; //account that made the comment
     private String timestamp;
 
     /**
@@ -22,20 +20,14 @@ public class Comment {
      *
      * @param authorName: authorname
      * @param text:       text
-     * @param post:       post the comment is made on
-     * @aparam account: account that made the comment
      */
-    public Comment(String authorName, String text, Post post, Account account) {
+    public Comment(String authorName, String text) {
         this.authorName = authorName;
         this.text = text;
-        this.post = post;
-        this.account = account;
-        post.addComment(this);
 
         String time = LocalDateTime.now().toString();
         time = time.substring(5, 19);
         this.timestamp = time;
-        account.makeComment(this);
     }
 
     /**
@@ -43,27 +35,14 @@ public class Comment {
      *
      * @param authorName: authorname
      * @param text:       text
-     * @param post:       post the comment is made on
      * @param timestamp:  time the comment was made
-     * @aparam account: account that made the comment
      */
-    public Comment(String authorName, String text, Post post, Account account, String timestamp) {
+    public Comment(String authorName, String text, String timestamp) {
         this.authorName = authorName;
         this.text = text;
-        this.post = post;
-        this.account = account;
         this.timestamp = timestamp;
-        post.addComment(this);
     }
 
-    /**
-     * set account (used by readdata only)
-     *
-     * @param account: account
-     */
-    public void setAccount(Account account) {
-        this.account = account;
-    }
 
     /**
      * get author name
@@ -83,23 +62,6 @@ public class Comment {
         return text;
     }
 
-    /**
-     * get post
-     *
-     * @return: post
-     */
-    public Post getPost() {
-        return post;
-    }
-
-    /**
-     * get account
-     *
-     * @return: account
-     */
-    public Account getAccount() {
-        return account;
-    }
 
     /**
      * get time
@@ -142,7 +104,7 @@ public class Comment {
      * username - timestamp: text
      */
     public String toString() {
-        return account.getUsername() + " - " + timestamp + ": " + text;
+        return authorName + " - " + timestamp + ": " + text;
     }
 
     /**
