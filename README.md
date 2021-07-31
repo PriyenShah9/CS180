@@ -40,8 +40,8 @@ ApplicationClient to display.
 This class also implements concurrency, which is discussed in a later section.
 ***
 ** Classes Account, Post, Comment, Exceptions
-** Class Application
 
+** Class Application
 This class runs the main method of the program that interacts with the user. 
 Users will be prompted to create an account, log in, or exit the application.
 Once logged in using a password, users will be able to make posts or comments and view others'
