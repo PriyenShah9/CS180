@@ -79,6 +79,8 @@ public class Application {
                     exportPost(scan);
                 } else {
                     usernameAccountLoggedIn = null;
+                    Account a = usernameValidity(usernameAccountLoggedIn);
+                    a.logOut();
                     break;
                 }
                 firstAns = "";
