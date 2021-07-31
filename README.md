@@ -6,10 +6,11 @@ adds a GUI, network, and the use of concurrency.
 ***
 ** Table of Contents
 1. [Instructions] (#instructions)
-2. [Class ApplicationClient](#class-applicationclient)
-3. [Class ApplicationServer] (#class-applicationserver)
-4. [Classes Account, Post, Comment, Exceptions](#classes-account-post-comment-exceptions)
-5. [Concurrency](#concurrency)
+2. [Class Application] (#class-application)
+3. [Class ApplicationClient](#class-applicationclient)
+4. [Class ApplicationServer] (#class-applicationserver)
+5. [Classes Account, Post, Comment, Exceptions](#classes-account-post-comment-exceptions)
+6. [Concurrency](#concurrency)
 ***
 ** Instructions
 
@@ -18,6 +19,11 @@ Compile as usual, making sure all files are in the same directory.
   these should be placed in the same directory as the module containing the program files.
   No testing of extra file placement was carried out for other IDEs as all team members use IntelliJ.
 Run ApplicationServer first, then start ApplicationClient. It should automatically connect. 
+***
+** Class Application
+
+This class is an updated version of the Application program from Project 4. This is a full and working 
+implementation of Project 4, which we used to do Project 5. As before, it is the "main". 
 ***
 ** Class ApplicationClient
 
@@ -79,8 +85,8 @@ in order to store information that is accessible to all threads.
 ***
 ** Submission Responsibilities
 
-Submission to Vocareum - 
+Submission to Vocareum - Arko Mukhopadhyay
 
-Submission of Report to Brightspace - 
+Submission of Report to Brightspace - Ilina Adhikari
 
-Submission of Presentation to Brightspace - Crystal
+Submission of Presentation to Brightspace - Crystal Jiang
