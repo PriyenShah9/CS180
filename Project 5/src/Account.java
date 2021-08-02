@@ -139,11 +139,13 @@ public class Account {
     /**
      * display posts
      */
-    public void displayPosts() {
+    public String displayPosts() {
+        String append = "";
         for (Post i : posts) {
-            i.displayPost();
-            System.out.println();
+            append += i.displayPost() + "\n";
+            append += "\n";
         }
+        return append;
     }
 
     /**
@@ -225,10 +227,17 @@ public class Account {
     /**
      * display all comments made
      */
-    public void displayComments() {
+    public String displayComments() {
+        String append = "";
         for (Comment i : commentsMade) {
-            i.displayComment();
+            append += i.displayComment() + "\n";
+            append += "\n";
         }
+        return append;
+    }
+
+    public void addComment(Comment comment) {
+        commentsMade.add(comment);
     }
 
     /**
@@ -237,10 +246,9 @@ public class Account {
      * @param comment: the comment
      */
     public void makeComment(Comment comment, int postIndex) {
-        commentsMade.add(comment);
-        Post p = posts.get(postIndex);
+        Post p = posts.remove(postIndex);
         p.addComment(comment);
-        posts.set(postIndex, p);
+        posts.add(postIndex, p);
     }
 
     /**
@@ -249,13 +257,15 @@ public class Account {
      *
      * @param text: text of a comment
      */
-    public void editComment(int commentIndexAccount, int commentIndexPost, int postIndex, String text) {
-        Comment c = commentsMade.get(commentIndexAccount);
-        c.editComment(text);
-        commentsMade.set(commentIndexAccount, c);
+    public void editCommentPost(int commentIndexPost, int postIndex, String text) {
         Post p = posts.get(postIndex);
         p.editComment(commentIndexPost, text);
+    }
 
+    public void editComment(int commentIndexAccount, String text) {
+        Comment c = commentsMade.remove(commentIndexAccount);
+        c.editComment(text);
+        commentsMade.add(commentIndexAccount, c);
     }
 
     /**
@@ -263,11 +273,15 @@ public class Account {
      *
      *
      */
-    public void deleteComment(int commentIndexAccount, int commentIndexPost, int postIndex) {
-        commentsMade.remove(commentIndexAccount);
-        posts.get(postIndex).deleteComment(commentIndexPost);
+    public void deleteCommentPost( int commentIndexPost, int postIndex) {
+        Post p = posts.get(postIndex);
+        p.deleteComment(commentIndexPost);
+        posts.add(postIndex, p);
     }
 
+    public void deleteComment(int commentIndexAccount) {
+        commentsMade.remove(commentIndexAccount);
+    }
     /**
      * delete account by setting fields to null
      */
