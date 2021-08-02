@@ -14,6 +14,7 @@ public class Comment {
     private String authorName;
     private String text;
     private String timestamp;
+    private String postTitle;
 
     /**
      * Construct a comment - brand new
@@ -21,10 +22,10 @@ public class Comment {
      * @param authorName: authorname
      * @param text:       text
      */
-    public Comment(String authorName, String text) {
+    public Comment(String authorName, String text, String postTitle) {
         this.authorName = authorName;
         this.text = text;
-
+        this.postTitle = postTitle;
         String time = LocalDateTime.now().toString();
         time = time.substring(5, 19);
         this.timestamp = time;
@@ -37,9 +38,10 @@ public class Comment {
      * @param text:       text
      * @param timestamp:  time the comment was made
      */
-    public Comment(String authorName, String text, String timestamp) {
+    public Comment(String authorName, String text, String postTitle, String timestamp) {
         this.authorName = authorName;
         this.text = text;
+        this.postTitle = postTitle;
         this.timestamp = timestamp;
     }
 
@@ -72,6 +74,10 @@ public class Comment {
         return timestamp;
     }
 
+    public String getPostTitle() {
+        return postTitle;
+    }
+
     /**
      * edit comment
      *
@@ -93,8 +99,8 @@ public class Comment {
     /**
      * display comment
      */
-    public void displayComment() {
-        System.out.println(this.toString());
+    public String displayComment() {
+        return this.toString();
     }
 
     /**
@@ -129,3 +135,4 @@ public class Comment {
         return true;
     }
 }
+
