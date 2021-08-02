@@ -1,48 +1,71 @@
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
-import java.util.Scanner;
 
-public class ApplicationServer {
+public class ApplicationServer implements Runnable{
 
     private static ArrayList<Account> accounts = new ArrayList<Account>();
     private static ArrayList<Post> posts = new ArrayList<Post>();
     private static ArrayList<Comment> comments = new ArrayList<Comment>();
-    private static String usernameAccountLoggedIn;
+    private String usernameAccountLoggedIn;
+    private static boolean prevAccounts = true;
+
+    private Socket socket;
+
+    public ApplicationServer(Socket socket) {
+        this.socket = socket;
+    }
 
     public static void main(String[] args) throws IOException {
+        ReadData r = new ReadData("accounts.txt", "posts.txt", "comments.txt");
+
+        try {
+            r.readAccounts();
+            r.readPosts();
+            r.readComments();
+        } catch (IOException e) {
+            System.out.println("There are no existing accounts.");
+            prevAccounts = false;
+        }
+        accounts = r.accounts;
+        posts = r.posts;
+        comments = r.comments;
+        postTransfer();
+        commentTransfer();
+
         ServerSocket ss = new ServerSocket(4244);
-        Socket socket = ss.accept();
-        System.out.println("Connected");
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            PrintWriter pw = new PrintWriter(socket.getOutputStream())) {
-            Scanner scan = new Scanner(System.in);
+        ArrayList<ApplicationServer> as = new ArrayList<>();
+        int i = 0;
+        while (true) {
+            Socket socket = ss.accept();
+            System.out.println("Connected");
+            as.add(new ApplicationServer(socket));
+            new Thread(as.get(i++)).start();
+        }
+    }
+
+    public void run() {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
+             PrintWriter pw = new PrintWriter(this.socket.getOutputStream())) {
             ReadData r = new ReadData("accounts.txt", "posts.txt", "comments.txt");
-            try {
-                r.readAccounts();
-                r.readPosts();
-                r.readComments();
-            } catch (IOException e) {
-                throw e;
-            }
-            accounts = r.accounts;
-            posts = r.posts;
-            comments = r.comments;
-            postTransfer();
-            commentTransfer();
-            while (true) {
+
+            outer: while (true) {
                 String firstAns = initialQuestion(pw, br);
                 if (firstAns.equals("3")) {
-                    usernameAccountLoggedIn = null;
+                    this.usernameAccountLoggedIn = null;
                     break;
                 }
                 while (true) {
                     if (firstAns.equals("1")) {
-                        usernameAccountLoggedIn = login(pw, br);
+                        if (prevAccounts) {
+                            this.usernameAccountLoggedIn = login(pw, br);
+                        } else {
+                            continue outer;
+                        }
                     } else if (firstAns.equals("2")) {
                         Account a = createAccount(pw, br);
                         accounts.add(a);
-                        usernameAccountLoggedIn = a.getUsername();
+                        this.usernameAccountLoggedIn = a.getUsername();
                     }
                     String ans = nextQuestion(pw, br);
                     if (ans.equals("1")) {
@@ -51,12 +74,12 @@ public class ApplicationServer {
                         viewPosts(pw, br);
                     } else if (ans.equals("3")) {
                         for (int i = 0; i < accounts.size(); i++) {
-                            if (usernameAccountLoggedIn.equals(accounts.get(i).getUsername())) {
+                            if (this.usernameAccountLoggedIn.equals(accounts.get(i).getUsername())) {
                                 accounts.remove(i);
                             }
                         }
                         pw.println("Your account was deleted");
-                        usernameAccountLoggedIn = null;
+                        this.usernameAccountLoggedIn = null;
                         break;
                     } else if (ans.equals("4")) {
                         makeComment(pw, br);
@@ -69,9 +92,9 @@ public class ApplicationServer {
                     } else if (ans.equals("8")) {
                         exportPost(pw, br);
                     } else {
-                        Account a = usernameValidity(usernameAccountLoggedIn);
+                        Account a = usernameValidity(this.usernameAccountLoggedIn);
                         a.logOut();
-                        usernameAccountLoggedIn = null;
+                        this.usernameAccountLoggedIn = null;
                         break;
                     }
                     firstAns = "";
@@ -88,8 +111,9 @@ public class ApplicationServer {
                 e.printStackTrace();
             }
         } catch (IOException e) {
-            throw e;
+            e.printStackTrace();
         }
+
     }
 
     public static String initialQuestion(PrintWriter printWriter, BufferedReader bufferedReader) throws IOException{

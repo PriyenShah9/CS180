@@ -23,6 +23,7 @@ public class Application {
 
     public static void main(String[] args) {
         Scanner scan = new Scanner(System.in);
+        boolean prevAccounts = true;
         ReadData r = new ReadData("accounts.txt", "posts.txt", "comments.txt");
         try {
             r.readAccounts();
@@ -30,13 +31,14 @@ public class Application {
             r.readComments();
         } catch (IOException e) {
             System.out.println("There are no existing accounts.");
+            prevAccounts = false;
         }
         accounts = r.accounts;
         posts = r.posts;
         comments = r.comments;
         postTransfer();
         commentTransfer();
-        while (true) {
+        outer: while (true) {
             String firstAns = initialQuestion(scan);
             if (firstAns.equals("3")) {
                 usernameAccountLoggedIn = null;
@@ -44,7 +46,11 @@ public class Application {
             }
             while (true) {
                 if (firstAns.equals("1")) {
-                    usernameAccountLoggedIn = login(scan);
+                    if (prevAccounts) {
+                        usernameAccountLoggedIn = login(scan);
+                    } else {
+                        continue outer;
+                    }
                 } else if (firstAns.equals("2")) {
                     Account a = createAccount(scan);
                     accounts.add(a);
@@ -73,6 +79,8 @@ public class Application {
                 } else if (ans.equals("8")) {
                     exportPost(scan);
                 } else {
+                    Account a = usernameValidity(usernameAccountLoggedIn);
+                    a.logOut();
                     usernameAccountLoggedIn = null;
                     break;
                 }
