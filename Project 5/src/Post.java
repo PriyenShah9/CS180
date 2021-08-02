@@ -142,8 +142,8 @@ public class Post {
     /**
      * display the post
      **/
-    public void displayPost() {
-        System.out.println(this.toString());
+    public String displayPost() {
+        return this.toString();
     }
 
     /**
