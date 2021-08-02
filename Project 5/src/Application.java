@@ -210,6 +210,7 @@ public class Application {
             String postContent = scan.nextLine();
             Post post = new Post(title, a.getUsername(), postContent);
             a.addPost(post);
+            posts.add(post);
             System.out.println("Your post has been made");
         } else if (ans.equalsIgnoreCase("2")) {
             System.out.print("What is the title of the post that you would like to edit: ");

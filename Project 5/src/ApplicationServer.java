@@ -25,9 +25,9 @@ public class ApplicationServer implements Runnable{
     private static boolean prevAccounts = true;
 
     //gatekeepers
-    private static Object accountsGatekeeper;
-    private static Object postsGatekeeper;
-    private static Object commentsGatekeeper;
+    private static Object accountsGatekeeper = new Object();
+    private static Object postsGatekeeper = new Object();
+    private static Object commentsGatekeeper = new Object();
 
     //fields of ApplicationServer objects
     private String usernameAccountLoggedIn;
@@ -280,7 +280,10 @@ public class ApplicationServer implements Runnable{
             printWriter.flush();
             String postContent = bufferedReader.readLine();
             Post post = new Post(title, a.getUsername(), postContent);
-            a.addPost(post);
+            posts.add(post);
+            synchronized (a) {
+                a.addPost(post);
+            }
             printWriter.println("Your post has been made.");
             printWriter.flush();
         } else if (ans.equalsIgnoreCase("2")) {
@@ -297,7 +300,9 @@ public class ApplicationServer implements Runnable{
             printWriter.println("What would you like to change your post to? ");
             printWriter.flush();
             String changedContext = bufferedReader.readLine();
-            a.editPost(a.getPosts().get(postIndex), changedContext);
+            synchronized (a) { //cannot edit while parsing through to display
+                a.editPost(a.getPosts().get(postIndex), changedContext);
+            }
             printWriter.println("Your edit was made.");
             printWriter.flush();
         } else if (ans.equalsIgnoreCase("3")) {
@@ -311,7 +316,10 @@ public class ApplicationServer implements Runnable{
                 title = bufferedReader.readLine();
             }
             int postIndex = getPostIndex(title, a);
-            a.getPosts().remove(postIndex);
+            synchronized (a) {
+                a.getPosts().remove(postIndex);
+            }
+            posts.remove(a.getPosts().get(postIndex));
             printWriter.println("Your post was deleted.");
             printWriter.flush();
         }
@@ -474,6 +482,7 @@ public class ApplicationServer implements Runnable{
             synchronized (a) {
                 a.deleteComment(commentIndexAccount);
             }
+            comments.remove(a.getComments().get(commentIndexAccount));
         }
         printWriter.println("Your changes were made.");
     }
