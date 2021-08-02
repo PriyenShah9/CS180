@@ -1,15 +1,33 @@
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+/**
+ * Project 5 - ApplicationServer
+ * <p>
+ * The ApplicationServer class is the class that
+ * does all the computations and stores all the information.
+ *
+ * @author Team #002, Section Y01
+ * @version August 2, 2021
+ */
 
 public class ApplicationServer implements Runnable{
 
-    private static ArrayList<Account> accounts = new ArrayList<Account>();
-    private static ArrayList<Post> posts = new ArrayList<Post>();
-    private static ArrayList<Comment> comments = new ArrayList<Comment>();
-    private String usernameAccountLoggedIn;
+    //Collections.synchronizedList should synchronize operations like add or remove, but iterating through lists
+    //still needs to be manually synchronized
+    private static List<Account> accounts = Collections.synchronizedList(new ArrayList<Account>());
+    private static List<Post> posts = Collections.synchronizedList(new ArrayList<Post>());
+    private static List<Comment> comments = Collections.synchronizedList(new ArrayList<Comment>());
     private static boolean prevAccounts = true;
 
+    private static Object accountsGatekeeper;
+    private static Object postsGatekeeper;
+    private static Object commentsGatekeeper;
+
+    private String usernameAccountLoggedIn;
     private Socket socket;
 
     public ApplicationServer(Socket socket) {
@@ -18,7 +36,6 @@ public class ApplicationServer implements Runnable{
 
     public static void main(String[] args) throws IOException {
         ReadData r = new ReadData("accounts.txt", "posts.txt", "comments.txt");
-
         try {
             r.readAccounts();
             r.readPosts();
@@ -60,6 +77,7 @@ public class ApplicationServer implements Runnable{
                         if (prevAccounts) {
                             this.usernameAccountLoggedIn = login(pw, br);
                         } else {
+                            prevAccounts = true; //does not need to be synced because they'll all just change it to true
                             continue outer;
                         }
                     } else if (firstAns.equals("2")) {
@@ -69,28 +87,30 @@ public class ApplicationServer implements Runnable{
                     }
                     String ans = nextQuestion(pw, br);
                     if (ans.equals("1")) {
-                        editAccount(pw, br);
+                        editAccount(pw, br, this.usernameAccountLoggedIn);
                     } else if (ans.equals("2")) {
                         viewPosts(pw, br);
                     } else if (ans.equals("3")) {
                         for (int i = 0; i < accounts.size(); i++) {
-                            if (this.usernameAccountLoggedIn.equals(accounts.get(i).getUsername())) {
-                                accounts.remove(i);
+                            synchronized (accountsGatekeeper) {
+                                if (this.usernameAccountLoggedIn.equals(accounts.get(i).getUsername())) {
+                                    accounts.remove(i);
+                                }
                             }
                         }
                         pw.println("Your account was deleted");
                         this.usernameAccountLoggedIn = null;
                         break;
                     } else if (ans.equals("4")) {
-                        makeComment(pw, br);
+                        makeComment(pw, br, this.usernameAccountLoggedIn);
                     } else if (ans.equals("5")) {
-                        editComment(pw, br);
+                        editComment(pw, br, this.usernameAccountLoggedIn);
                     } else if (ans.equals("6")) {
-                        viewComments(pw, br);
+                        this.viewComments(pw, br);
                     } else if (ans.equals("7")) {
-                        importPost(pw, br);
+                        this.importPost(pw, br, this.usernameAccountLoggedIn);
                     } else if (ans.equals("8")) {
-                        exportPost(pw, br);
+                        this.exportPost(pw, br);
                     } else {
                         Account a = usernameValidity(this.usernameAccountLoggedIn);
                         a.logOut();
@@ -100,9 +120,9 @@ public class ApplicationServer implements Runnable{
                     firstAns = "";
                 }
             }
-            r.accounts = accounts;
-            r.posts = posts;
-            r.comments = comments;
+            r.accounts = (ArrayList<Account>) accounts;
+            r.posts = (ArrayList<Post>) posts;
+            r.comments = (ArrayList<Comment>) comments;
             try {
                 r.writeAccountInformation();
                 r.writePostInformation();
@@ -222,7 +242,7 @@ public class ApplicationServer implements Runnable{
         return username;
     }
 
-    public static void editAccount(PrintWriter printWriter, BufferedReader bufferedReader) throws IOException{
+    public static void editAccount(PrintWriter printWriter, BufferedReader bufferedReader, String usernameAccountLoggedIn) throws IOException{
         Account a = usernameValidity(usernameAccountLoggedIn);
         printWriter.println("Would you like to:" +
                 "\n1. Make a post." +
@@ -330,7 +350,7 @@ public class ApplicationServer implements Runnable{
         }
     }
 
-    public static void makeComment(PrintWriter printWriter, BufferedReader bufferedReader) throws IOException{
+    public static void makeComment(PrintWriter printWriter, BufferedReader bufferedReader, String usernameAccountLoggedIn) throws IOException{
         printWriter.println("Enter the author of the post you would like to comment on: ");
         printWriter.flush();
         String username = bufferedReader.readLine();
@@ -359,7 +379,7 @@ public class ApplicationServer implements Runnable{
         account.makeComment(comment, postIndex);
     }
 
-    public static void editComment(PrintWriter printWriter, BufferedReader bufferedReader) throws IOException{
+    public static void editComment(PrintWriter printWriter, BufferedReader bufferedReader, String usernameAccountLoggedIn) throws IOException{
         printWriter.println("Enter the author of the post you would like to edit/delete your comment on: ");
         printWriter.flush();
         String username = bufferedReader.readLine();
@@ -418,7 +438,7 @@ public class ApplicationServer implements Runnable{
         printWriter.println("Your changes were made.");
     }
 
-    public static void importPost(PrintWriter printWriter, BufferedReader bufferedReader) throws IOException{
+    public static void importPost(PrintWriter printWriter, BufferedReader bufferedReader, String usernameAccountLoggedIn) throws IOException{
         printWriter.println("Enter the title of the post you would like to import: ");
         printWriter.flush();
         String ans = bufferedReader.readLine();
@@ -457,7 +477,10 @@ public class ApplicationServer implements Runnable{
             ans = bufferedReader.readLine();
         }
         int postIndex = findPost(ans);
-        Post post = posts.get(postIndex);
+        Post post;
+        synchronized (postsGatekeeper) {
+            post = posts.get(postIndex);
+        }
         File f = new File(post.getTitle() + ".csv");
         try (PrintWriter pw = new PrintWriter(new FileOutputStream(f, false))) {
             pw.print(post.getTitle().replaceAll(" ", "_")
@@ -470,7 +493,7 @@ public class ApplicationServer implements Runnable{
         }
     }
 
-    public static void postTransfer() {
+    public static void postTransfer() { //does not need to be synced b/c only main server does it
         for (Post p : posts) {
             for (int i = 0; i < accounts.size(); i++) {
                 if (p.getAuthorName().equals(accounts.get(i).getUsername())) {
@@ -482,7 +505,7 @@ public class ApplicationServer implements Runnable{
         }
     }
 
-    public static void commentTransfer() {
+    public static void commentTransfer() { //does not need to be synced b/c only main server does it
         for (Comment c : comments) {
             for (int i = 0; i < accounts.size(); i++) {
                 if (c.getAuthorName().equals(accounts.get(i).getUsername())) {
@@ -505,40 +528,48 @@ public class ApplicationServer implements Runnable{
 
 
     public static int getPostIndex(String title, Account account) {
-        for (int i = 0; i < account.getPosts().size(); i++) {
-            if (title.equalsIgnoreCase(account.getPosts().get(i).getTitle())) {
-                return i;
+        synchronized (account) { //sync on which account is being used
+            for (int i = 0; i < account.getPosts().size(); i++) {
+                if (title.equalsIgnoreCase(account.getPosts().get(i).getTitle())) {
+                    return i;
+                }
             }
+            return -1;
         }
-        return -1;
     }
 
     public static int findPost(String title) {
-        for (int i = 0; i < posts.size(); i++) {
-            if (title.equalsIgnoreCase(posts.get(i).getTitle())) {
-                return i;
+        synchronized (postsGatekeeper) {
+            for (int i = 0; i < posts.size(); i++) {
+                if (title.equalsIgnoreCase(posts.get(i).getTitle())) {
+                    return i;
+                }
             }
+            return -1;
         }
-        return -1;
     }
 
     public static int findComment(String context, ArrayList<Comment> comments) {
-        for (int i = 0; i < comments.size(); i++) {
-            if (comments.get(i).getText().equalsIgnoreCase(context)) {
-                return i;
+        synchronized (commentsGatekeeper) {
+            for (int i = 0; i < comments.size(); i++) {
+                if (comments.get(i).getText().equalsIgnoreCase(context)) {
+                    return i;
+                }
             }
+            return -1;
         }
-        return -1;
     }
 
 
     public static Account usernameValidity(String username) {
-        for (int i = 0; i < accounts.size(); i++) {
-            if (username.equals(accounts.get(i).getUsername())) {
-                return accounts.get(i);
+        synchronized (accountsGatekeeper) {
+            for (int i = 0; i < accounts.size(); i++) {
+                if (username.equals(accounts.get(i).getUsername())) {
+                    return accounts.get(i);
+                }
             }
+            return null;
         }
-        return null;
     }
 }
 

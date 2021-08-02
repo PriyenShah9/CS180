@@ -1,26 +1,20 @@
 import java.io.*;
 import java.io.IOException;
 import java.util.Scanner;
-import java.util.ArrayList;
 import java.net.*;
 
 
 /**
- * Project 4 - Application
+ * Project 4 - ApplicationClient
  * <p>
- * The Application class is the class that
- * does all the interactions with the user.
+ * The ApplicationClient class is the class that
+ * does all the interactions with the user through the GUI.
  *
  * @author Team #002, Section Y01
- * @version July 21, 2021
+ * @version August 2, 2021
  */
 
 public class ApplicationClient {
-
-    private static ArrayList<Account> accounts = new ArrayList<Account>();
-    private static ArrayList<Post> posts = new ArrayList<Post>();
-    private static ArrayList<Comment> comments = new ArrayList<Comment>();
-    private static String usernameAccountLoggedIn;
 
     public static void main(String[] args) throws IOException{
         Scanner scan = new Scanner(System.in);
