@@ -23,7 +23,6 @@ public class Application {
 
     public static void main(String[] args) {
         Scanner scan = new Scanner(System.in);
-        boolean prevAccountsExist = true;
         ReadData r = new ReadData("accounts.txt", "posts.txt", "comments.txt");
         try {
             r.readAccounts();
@@ -31,12 +30,13 @@ public class Application {
             r.readComments();
         } catch (IOException e) {
             System.out.println("There are no existing accounts.");
-            prevAccountsExist = false;
         }
         accounts = r.accounts;
         posts = r.posts;
         comments = r.comments;
-        outer: while (true) {
+        postTransfer();
+        commentTransfer();
+        while (true) {
             String firstAns = initialQuestion(scan);
             if (firstAns.equals("3")) {
                 usernameAccountLoggedIn = null;
@@ -44,12 +44,7 @@ public class Application {
             }
             while (true) {
                 if (firstAns.equals("1")) {
-                    if (prevAccountsExist) {
-                        usernameAccountLoggedIn = login(scan);
-                    } else {
-                        System.out.println("There are no accounts. Please create one.");
-                        continue outer;
-                    }
+                    usernameAccountLoggedIn = login(scan);
                 } else if (firstAns.equals("2")) {
                     Account a = createAccount(scan);
                     accounts.add(a);
@@ -79,8 +74,6 @@ public class Application {
                     exportPost(scan);
                 } else {
                     usernameAccountLoggedIn = null;
-                    Account a = usernameValidity(usernameAccountLoggedIn);
-                    a.logOut();
                     break;
                 }
                 firstAns = "";
@@ -170,9 +163,6 @@ public class Application {
             System.out.println("Username does not exist. Try again. ");
             System.out.print("Username: ");
             username = scan.nextLine();
-            if (username.equalsIgnoreCase("c")) {
-                return username;
-            }
         }
         Account a = usernameValidity(username);
         System.out.print("Password: ");
@@ -248,7 +238,7 @@ public class Application {
         if (account.getPosts().size() == 0) {
             System.out.println("This user has no posts.");
         } else {
-            account.displayPosts();
+            System.out.println(account.displayPosts());
         }
     }
 
@@ -263,7 +253,7 @@ public class Application {
         if (account.getComments().size() == 0) {
             System.out.println("This user has made no comments.");
         } else {
-            account.displayComments();
+            System.out.println(account.displayComments());
         }
     }
 
@@ -284,7 +274,9 @@ public class Application {
         int postIndex = getPostIndex(title, account);
         System.out.println("What would you like to comment on this post? ");
         String ans = scan.nextLine();
-        Comment comment = new Comment(usernameAccountLoggedIn, ans);
+        Comment comment = new Comment(usernameAccountLoggedIn, ans, title);
+        Account a = usernameValidity(usernameAccountLoggedIn);
+        a.addComment(comment);
         account.makeComment(comment, postIndex);
         System.out.println("Comment was made");
     }
@@ -306,12 +298,13 @@ public class Application {
         int postIndex = getPostIndex(title, account);
         System.out.println("Enter the comment you would like to edit/delete: ");
         String text = scan.nextLine();
+        Account a = usernameValidity(usernameAccountLoggedIn);
         while (findComment(text, account.getPosts().get(postIndex).getComments()) == -1
-            && findComment(text, account.getComments()) == -1) {
+            || findComment(text, a.getComments()) == -1) {
             System.out.print("This comment does not exist.\nTry again: ");
             text = scan.nextLine();
         }
-        int commentIndexAccount = findComment(text, account.getComments());
+        int commentIndexAccount = findComment(text, a.getComments());
         int commentIndexPost = findComment(text, account.getPosts().get(postIndex).getComments());
         System.out.println("Would you like to: " +
                 "\n1. Edit the comment." +
@@ -327,9 +320,11 @@ public class Application {
         if (ans.equals("1")) {
             System.out.println("What would you like to change your comment to: ");
             String changedText = scan.nextLine();
-            account.editComment(commentIndexAccount, commentIndexPost, postIndex, changedText);
+            account.editCommentPost(commentIndexPost, postIndex, changedText);
+            a.editComment(commentIndexAccount, changedText);
         } else {
-            account.deleteComment(commentIndexAccount, commentIndexPost, postIndex);
+            account.deleteCommentPost( commentIndexPost, postIndex);
+            a.deleteComment(commentIndexAccount);
         }
         System.out.println("Your changes were made.");
     }
@@ -349,6 +344,7 @@ public class Application {
                 Account account = usernameValidity(usernameAccountLoggedIn);
                 System.out.println(post);
                 account.addPost(post);
+                posts.add(post);
                 System.out.println("The post was added to your account.");
             }
         } catch(FileNotFoundException e) {
@@ -361,12 +357,13 @@ public class Application {
     public static void exportPost(Scanner scan) {
         System.out.println("Enter the title of the post you would like to export: ");
         String ans = scan.nextLine();
-        while (findPost(ans) == null) {
+        while (findPost(ans) == -1) {
             System.out.println("This title does not exist.");
             System.out.println("Try again");
             ans = scan.nextLine();
         }
-        Post post = findPost(ans);
+        int postIndex = findPost(ans);
+        Post post = posts.get(postIndex);
         File f = new File(post.getTitle() + ".csv");
         try (PrintWriter pw = new PrintWriter(new FileOutputStream(f, false))) {
             pw.print(post.getTitle() + " " + post.getAuthorName() + " " + post.getText() + " " + post.getTimeStamp());
@@ -375,7 +372,38 @@ public class Application {
         }
     }
 
+    public static void postTransfer() {
+        for (Post p : posts) {
+            for (int i = 0; i < accounts.size(); i++) {
+                if (p.getAuthorName().equals(accounts.get(i).getUsername())) {
+                    Account a = accounts.remove(i);
+                    a.addPost(p);
+                    accounts.add(i, a);
+                }
+            }
+        }
+    }
 
+    public static void commentTransfer() {
+        for (Comment c : comments) {
+            for (int i = 0; i < accounts.size(); i++) {
+                if (c.getAuthorName().equals(accounts.get(i).getUsername())) {
+                    Account a = accounts.remove(i);
+                    a.addComment(c);
+                    accounts.add(i, a);
+                }
+            }
+            for (int i = 0; i < accounts.size(); i++) {
+                for (int j = 0; j < accounts.get(i).getPosts().size(); j++) {
+                    if (accounts.get(i).getPosts().get(j).getTitle().equals(c.getPostTitle())) {
+                        Account a = accounts.remove(i);
+                        a.makeComment(c, j);
+                        accounts.add(i, a);
+                    }
+                }
+            }
+        }
+    }
 
     public static int getPostIndex(String title, Account account) {
         for (int i = 0; i < account.getPosts().size(); i++) {
@@ -386,15 +414,13 @@ public class Application {
         return -1;
     }
 
-    public static Post findPost(String title) {
-        for (Account a : accounts) {
-            for (Post p : a.getPosts()) {
-                if (title.equalsIgnoreCase(p.getTitle())) {
-                    return p;
-                }
+    public static int findPost(String title) {
+        for (int i = 0; i < posts.size(); i++) {
+            if (title.equalsIgnoreCase(posts.get(i).getTitle())) {
+                return i;
             }
         }
-        return null;
+        return -1;
     }
 
     public static int findComment(String context, ArrayList<Comment> comments) {
@@ -415,6 +441,4 @@ public class Application {
         }
         return null;
     }
-
-
 }
