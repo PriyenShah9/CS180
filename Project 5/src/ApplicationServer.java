@@ -21,15 +21,22 @@ public class ApplicationServer implements Runnable{
     private static List<Account> accounts = Collections.synchronizedList(new ArrayList<Account>());
     private static List<Post> posts = Collections.synchronizedList(new ArrayList<Post>());
     private static List<Comment> comments = Collections.synchronizedList(new ArrayList<Comment>());
+
     private static boolean prevAccounts = true;
 
+    //gatekeepers
     private static Object accountsGatekeeper;
     private static Object postsGatekeeper;
     private static Object commentsGatekeeper;
 
+    //fields of ApplicationServer objects
     private String usernameAccountLoggedIn;
     private Socket socket;
 
+    /**
+     * constructs an applicationserver object
+     * for threading
+     */
     public ApplicationServer(Socket socket) {
         this.socket = socket;
     }
@@ -91,8 +98,8 @@ public class ApplicationServer implements Runnable{
                     } else if (ans.equals("2")) {
                         viewPosts(pw, br);
                     } else if (ans.equals("3")) {
-                        for (int i = 0; i < accounts.size(); i++) {
-                            synchronized (accountsGatekeeper) {
+                        synchronized (accountsGatekeeper) {
+                            for (int i = 0; i < accounts.size(); i++) {
                                 if (this.usernameAccountLoggedIn.equals(accounts.get(i).getUsername())) {
                                     accounts.remove(i);
                                 }
@@ -325,8 +332,21 @@ public class ApplicationServer implements Runnable{
             printWriter.println("This user has no posts.");
             printWriter.flush();
         } else {
-            printWriter.println(account.displayPosts());
+            synchronized (account) {
+                printWriter.println(account.displayPosts());
+            }
             printWriter.flush();
+            while(bufferedReader.readLine() == null) { //refresh view every 10 seconds or until next command is sent
+                synchronized (account) {
+                    printWriter.println(account.displayPosts());
+                }
+                printWriter.flush();
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
         }
     }
 
@@ -345,8 +365,22 @@ public class ApplicationServer implements Runnable{
             printWriter.println("This user has made no comments.");
             printWriter.flush();
         } else {
-            printWriter.println(account.displayComments());
+            synchronized (account) { //account is the same object as "a" in makeComment so will not make a new comment
+                                     //while parsing through the comments; important b/c displayComments a for-each
+                printWriter.println(account.displayComments());
+            }
             printWriter.flush();
+            while(bufferedReader.readLine() == null) { //refresh view every 10 seconds or until next command is sent
+                synchronized (account) {
+                    printWriter.println(account.displayComments());
+                }
+                printWriter.flush();
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
         }
     }
 
@@ -375,7 +409,9 @@ public class ApplicationServer implements Runnable{
         String ans = bufferedReader.readLine();
         Comment comment = new Comment(usernameAccountLoggedIn, ans, title);
         Account a = usernameValidity(usernameAccountLoggedIn);
-        a.addComment(comment);
+        synchronized (a) { //same object as account in viewComments
+            a.addComment(comment);
+        }
         account.makeComment(comment, postIndex);
     }
 
@@ -430,10 +466,14 @@ public class ApplicationServer implements Runnable{
             printWriter.flush();
             String changedText = bufferedReader.readLine();
             account.editCommentPost(commentIndexPost, postIndex, changedText);
-            a.editComment(commentIndexAccount, changedText);
+            synchronized (a) { //cannot change text while viewComment is parsing through all comments
+                a.editComment(commentIndexAccount, changedText);
+            }
         } else {
-            account.deleteCommentPost( commentIndexPost, postIndex);
-            a.deleteComment(commentIndexAccount);
+            account.deleteCommentPost(commentIndexPost, postIndex);
+            synchronized (a) {
+                a.deleteComment(commentIndexAccount);
+            }
         }
         printWriter.println("Your changes were made.");
     }
@@ -452,10 +492,12 @@ public class ApplicationServer implements Runnable{
                 String text = information[2].replaceAll("_", " ");
                 Post post = new Post(title, author, text);
                 Account account = usernameValidity(usernameAccountLoggedIn);
-                System.out.println(post);
-                account.addPost(post);
+                printWriter.print(post);
+                synchronized (account) {
+                    account.addPost(post);
+                }
                 posts.add(post);
-                System.out.println("The post was added to your account.");
+                printWriter.print("The post was added to your account.");
             }
         } catch(FileNotFoundException e) {
             printWriter.println("This file does not exist.");
