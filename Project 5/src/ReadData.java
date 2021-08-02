@@ -46,13 +46,13 @@ public class ReadData {
 
     public static void writeCommentInformation() throws IOException{
         try (PrintWriter pw = new PrintWriter(new FileOutputStream(commentsFileName, false))) {
-
             for (Account a : accounts) {
                 for (Comment c : a.getComments()) {
                     String commentAuthor = c.getAuthorName().replaceAll(" ", "_");
                     String commentText = c.getText().replaceAll(" ", "_");
                     String commentTimestamp = c.getTimestamp().replaceAll(" ", "_");
-                    pw.println(commentAuthor + " " + commentText + " " + commentTimestamp);
+                    String postTitle = c.getPostTitle().replaceAll(" ", "_");
+                    pw.println(commentAuthor + " " + commentText + " " + postTitle + " " + commentTimestamp);
                 }
             }
         }
@@ -80,10 +80,10 @@ public class ReadData {
             String line;
             while ((line = bfr.readLine()) != null) {
                 String[] postInformation = line.split(" ");
-                String postTitle = postInformation[0];
-                String postAuthor = postInformation[1];
-                String postText = postInformation[2];
-                String postTimestamp = postInformation[3];
+                String postTitle = postInformation[0].replaceAll("_", " ");
+                String postAuthor = postInformation[1].replaceAll("_", " ");
+                String postText = postInformation[2].replaceAll("_", " ");
+                String postTimestamp = postInformation[3].replaceAll("_", " ");
                 Post p = new Post(postTitle, postAuthor, postText, postTimestamp);
                 posts.add(p);
             }
@@ -96,10 +96,11 @@ public class ReadData {
             String line;
             while ((line = bfr.readLine()) != null) {
                 String[] commentInformation = line.split(" ");
-                String commentAuthor = commentInformation[0];
-                String commentText = commentInformation[1];
-                String commentTimestamp = commentInformation[2];
-                Comment c = new Comment(commentAuthor, commentText, commentTimestamp);
+                String commentAuthor = commentInformation[0].replaceAll("_", " ");
+                String commentText = commentInformation[1].replaceAll("_", " ");
+                String commentPost = commentInformation[2].replaceAll("_", " ");
+                String commentTimestamp = commentInformation[2].replaceAll("_", " ");
+                Comment c = new Comment(commentAuthor, commentText, commentPost, commentTimestamp);
                 comments.add(c);
             }
         }
