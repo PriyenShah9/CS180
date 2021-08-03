@@ -75,9 +75,6 @@ public class ApplicationServer implements Runnable{
 
             outer: while (true) {
                 String firstAns = initialQuestion(pw, br);
-                pw.write(firstAns);
-                pw.println();
-                pw.flush();
                 if (firstAns.equals("3")) {
                     this.usernameAccountLoggedIn = null;
                     break;
@@ -343,23 +340,23 @@ public class ApplicationServer implements Runnable{
             printWriter.println("This user has no posts.");
             printWriter.flush();
         } else {
-            synchronized (account) {
-                printWriter.println(account.displayPosts());
-                printWriter.println("Hit any key to get option menu. ");
-            }
-            printWriter.flush();
-            while(bufferedReader.readLine() == null) { //refresh view every 10 seconds or until next command is sent
-                synchronized (account) {
+            do { //refresh view every 10 seconds or until next command is sent
+                synchronized (account) { //account is the same object as "a" in addPost so will not make a new comment
+                                         //while parsing through the posts; important b/c displayPosts a for-each
                     printWriter.println(account.displayPosts());
-                    printWriter.println("Hit any key to get option menu. ");
                 }
+                printWriter.println("Hit enter to get option menu. ");
                 printWriter.flush();
+                if (bufferedReader.readLine() != null) {
+                    break;
+                }
                 try {
-                    Thread.sleep(10000);
+                    Thread.sleep(5000);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
-            }
+            } while (true);
+            //bufferedReader.readLine();
         }
     }
 
@@ -378,24 +375,22 @@ public class ApplicationServer implements Runnable{
             printWriter.println("This user has made no comments.");
             printWriter.flush();
         } else {
-            synchronized (account) { //account is the same object as "a" in makeComment so will not make a new comment
-                                     //while parsing through the comments; important b/c displayComments a for-each
-                printWriter.println(account.displayComments());
-                printWriter.println("Hit any key to get option menu. ");
-            }
-            printWriter.flush();
-            while(bufferedReader.readLine() == null) { //refresh view every 10 seconds or until next command is sent
+            do { //refresh view every 10 seconds or until next command is sent
                 synchronized (account) {
                     printWriter.println(account.displayComments());
-                    printWriter.println("Hit any key to get option menu. ");
+                    printWriter.println("Hit enter to get option menu. ");
                 }
                 printWriter.flush();
+                if (bufferedReader.readLine() != null) {
+                    break;
+                }
                 try {
                     Thread.sleep(10000);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
-            }
+            } while(true);
+            //bufferedReader.readLine();
         }
     }
 
