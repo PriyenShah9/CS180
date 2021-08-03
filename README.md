@@ -33,6 +33,9 @@ implementation of Project 4, which we used to do Project 5. As before, it is the
 This class is one half of the Application class that runs on the user end. It's main purpose is to 
 display the GUI and interact with the user. It displays posts and comments, and accepts user input 
 via buttons or the keyboard. Information is sent between this class and the ApplicationServer class.
+
+Unfortunately, the GUI does not run on the EDT so hangs are not unexpected. Given more time, this issue
+could become resolved.
 ***
 ** Class ApplicationServer
 This class is the other half of the Application class and runs on the server end. It's main purpose
@@ -85,7 +88,7 @@ re-displaying during the time when the "ok" button is not pressed.
 ***
 ** Submission Responsibilities
 
-Submission of Code to Vocareum - Arko Mukhopadhyay
+Submission of Code to Vocareum - Crystal Jiang
 
 Submission of Report to Brightspace - Ilina Adhikari
 
