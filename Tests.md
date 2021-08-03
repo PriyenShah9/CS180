@@ -8,7 +8,7 @@
 **Test 1: Account Creation
 Steps:
 1.  User launches application.
-2.  User types “1” and clicks “Enter”.
+2.  User types “2” and clicks “Enter”.
 3.  User enters username via the keyboard.
 4.  User clicks “Enter".
 5.  User enters password via the keyboard and clicks “Enter".
