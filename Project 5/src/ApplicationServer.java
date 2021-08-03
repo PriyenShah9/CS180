@@ -71,6 +71,7 @@ public class ApplicationServer implements Runnable{
     public void run() {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
              PrintWriter pw = new PrintWriter(this.socket.getOutputStream())) {
+
             ReadData r = new ReadData("accounts.txt", "posts.txt", "comments.txt");
 
             outer: while (true) {
@@ -204,7 +205,7 @@ public class ApplicationServer implements Runnable{
         printWriter.flush();
         String username = bufferedReader.readLine();
         while (usernameValidity(username) != null) {
-            printWriter.print("This username is taken." +
+            printWriter.println("This username is taken." +
                     "\nTry again: ");
             printWriter.flush();
             username = bufferedReader.readLine();
@@ -216,7 +217,7 @@ public class ApplicationServer implements Runnable{
         printWriter.flush();
         String reenteredPassword = bufferedReader.readLine();
         while (!password.equals(reenteredPassword)) {
-            printWriter.print("That is incorrect." +
+            printWriter.println("That is incorrect." +
                     "\nTry again: ");
             printWriter.flush();
             reenteredPassword = bufferedReader.readLine();
@@ -330,7 +331,7 @@ public class ApplicationServer implements Runnable{
         printWriter.flush();
         String username = bufferedReader.readLine();
         while (usernameValidity(username) == null) {
-            printWriter.print("This username does not exist." +
+            printWriter.println("This username does not exist." +
                     "\nTry again: ");
             printWriter.flush();
             username = bufferedReader.readLine();
@@ -365,7 +366,7 @@ public class ApplicationServer implements Runnable{
         printWriter.flush();
         String username = bufferedReader.readLine();
         while (usernameValidity(username) == null) {
-            printWriter.print("This username does not exist." +
+            printWriter.println("This username does not exist." +
                     "\nTry again: ");
             printWriter.flush();
             username = bufferedReader.readLine();
@@ -401,7 +402,7 @@ public class ApplicationServer implements Runnable{
         printWriter.flush();
         String username = bufferedReader.readLine();
         while (usernameValidity(username) == null) {
-            printWriter.print("This username does not exist." +
+            printWriter.println("This username does not exist." +
                     "\nTry again: ");
             printWriter.flush();
             username = bufferedReader.readLine();
@@ -411,7 +412,7 @@ public class ApplicationServer implements Runnable{
         printWriter.flush();
         String title = bufferedReader.readLine();
         while (getPostIndex(title, account) == -1) {
-            printWriter.print("This title does not exist." +
+            printWriter.println("This title does not exist." +
                     "\nTry again: ");
             title = bufferedReader.readLine();
         }
@@ -432,7 +433,7 @@ public class ApplicationServer implements Runnable{
         printWriter.flush();
         String username = bufferedReader.readLine();
         while (usernameValidity(username) == null) {
-            printWriter.print("This username does not exist." +
+            printWriter.println("This username does not exist." +
                     "\nTry again: ");
             username = bufferedReader.readLine();
         }
@@ -441,7 +442,7 @@ public class ApplicationServer implements Runnable{
         printWriter.flush();
         String title = bufferedReader.readLine();
         while (getPostIndex(title, account) == -1) {
-            printWriter.print("This title does not exist." +
+            printWriter.println("This title does not exist." +
                     "\nTry again: ");
             printWriter.flush();
             title = bufferedReader.readLine();
@@ -453,7 +454,7 @@ public class ApplicationServer implements Runnable{
         Account a = usernameValidity(usernameAccountLoggedIn);
         while (findComment(text, account.getPosts().get(postIndex).getComments()) == -1
                 || findComment(text, a.getComments()) == -1) {
-            printWriter.print("This comment does not exist." +
+            printWriter.println("This comment does not exist." +
                     "\nTry again: ");
             printWriter.flush();
             text = bufferedReader.readLine();
