@@ -21,6 +21,11 @@ public class Application {
     private static ArrayList<Comment> comments = new ArrayList<Comment>();
     private static String usernameAccountLoggedIn;
 
+    /**
+     * main
+     *
+     * loads data, calls other methods, writes data
+     **/
     public static void main(String[] args) {
         Scanner scan = new Scanner(System.in);
         boolean prevAccounts = true;
@@ -99,6 +104,14 @@ public class Application {
         }
     }
 
+    /**
+     * initialQuestion
+     *
+     * first 3 options, validates user input
+     *
+     * @param scan: scannner
+     * @return String: answer to the first questions
+     **/
     public static String initialQuestion(Scanner scan) {
         System.out.println("Would you like to:\n1. Log in\n2. Create an Account\n3. Exit the program\n");
         String ans = scan.nextLine();
@@ -110,7 +123,14 @@ public class Application {
         return ans;
     }
 
-
+    /**
+     * nextQuestion
+     *
+     * 9 options that are available after logging in
+     *
+     * @param scan: scannner
+     * @return String: answer to the first questions
+     **/
     public static String nextQuestion(Scanner scan) {
         System.out.println("Would you like to:" +
                 "\n1. Edit your account." +
@@ -142,6 +162,15 @@ public class Application {
         return ans;
     }
 
+    /**
+     * createAccount
+     *
+     * if user selects 2 in initial questions:
+     * all questions and actions needed to create an account
+     * new account is added to accounts array
+     *
+     * @param scan: scannner
+     **/
     public static Account createAccount(Scanner scan)  {
         System.out.print("What is your name? ");
         String name = scan.nextLine();
@@ -163,7 +192,15 @@ public class Application {
         return new Account(name, username, password, true);
     }
 
-
+    /**
+     * login
+     *
+     * if user selects 1 in initial question:
+     * asks for username until a username that exists is provided
+     * and checks for the password to be the same
+     *
+     * @param scan: scannner
+     **/
     public static String login(Scanner scan) {
         System.out.print("Username: ");
         String username = scan.nextLine();
@@ -183,6 +220,15 @@ public class Application {
         return username;
     }
 
+    /**
+     * editAccount
+     *
+     * after 1 is selected in nextQuestion:
+     * - can make, edit, or delete a post
+     * implementations for all three are in here
+     *
+     * @param scan: scannner
+     **/
     public static void editAccount(Scanner scan) {
         Account a = usernameValidity(usernameAccountLoggedIn);
         System.out.println("Would you like to: " +
@@ -236,6 +282,13 @@ public class Application {
         }
     }
 
+    /**
+     * viewPosts
+     *
+     * to view all posts from a user
+     *
+     * @param scan: scannner
+     **/
     public static void viewPosts(Scanner scan) {
         System.out.println("Enter the username of the account you would like to view: ");
         String username = scan.nextLine();
@@ -251,6 +304,13 @@ public class Application {
         }
     }
 
+    /**
+     * viewComments
+     *
+     * to view all comments made by a user
+     *
+     * @param scan: scannner
+     **/
     public static void viewComments(Scanner scan) {
         System.out.println("Enter the username of the account you would like to view: ");
         String username = scan.nextLine();
@@ -266,6 +326,13 @@ public class Application {
         }
     }
 
+    /**
+     * makeComment
+     *
+     * implementation for making a comment
+     *
+     * @param scan: scannner
+     **/
     public static void makeComment(Scanner scan) {
         System.out.println("Enter the author of the post you would like to comment on: ");
         String username = scan.nextLine();
@@ -290,6 +357,13 @@ public class Application {
         System.out.println("Comment was made");
     }
 
+    /**
+     * editComment
+     *
+     * implementation for editing a comment
+     *
+     * @param scan: scannner
+     **/
     public static void editComment(Scanner scan) {
         System.out.println("Enter the author of the post you would like to edit/delete your comment on: ");
         String username = scan.nextLine();
@@ -338,6 +412,14 @@ public class Application {
         System.out.println("Your changes were made.");
     }
 
+    /**
+     * importPost
+     *
+     * import post from a csv
+     * - csv must be in same directory as the module
+     *
+     * @param scan: scannner
+     **/
     public static void importPost(Scanner scan) {
         System.out.println("Enter the title of the post you would like to import: ");
         String ans = scan.nextLine();
@@ -363,6 +445,14 @@ public class Application {
         }
     }
 
+    /**
+     * exportPost
+     *
+     * export post from a csv
+     * - csv will be in same directory as module
+     *
+     * @param scan: scannner
+     **/
     public static void exportPost(Scanner scan) {
         System.out.println("Enter the title of the post you would like to export: ");
         String ans = scan.nextLine();
@@ -381,6 +471,13 @@ public class Application {
         }
     }
 
+    /**
+     * postTransfer
+     *
+     * assigns previous posts to the appropriate accounts when
+     * loading from a previous session
+     *
+     **/
     public static void postTransfer() {
         for (Post p : posts) {
             for (int i = 0; i < accounts.size(); i++) {
@@ -393,6 +490,13 @@ public class Application {
         }
     }
 
+    /**
+     * commentTransfer
+     *
+     * assigns previous comments to hte appropriate post and account
+     * when loading from a previous session
+     *
+     **/
     public static void commentTransfer() {
         for (Comment c : comments) {
             for (int i = 0; i < accounts.size(); i++) {
@@ -414,6 +518,15 @@ public class Application {
         }
     }
 
+    /**
+     * getPostIndex
+     *
+     * find sthe index of the post in each account's
+     * arraylist of posts
+     *
+     * @param title: post title
+     * @param account: account that made the post
+     **/
     public static int getPostIndex(String title, Account account) {
         for (int i = 0; i < account.getPosts().size(); i++) {
             if (title.equalsIgnoreCase(account.getPosts().get(i).getTitle())) {
@@ -423,6 +536,13 @@ public class Application {
         return -1;
     }
 
+    /**
+     * findPost
+     *
+     * finds a post in the static arraylist of all posts
+     *
+     * @param title: post title
+     **/
     public static int findPost(String title) {
         for (int i = 0; i < posts.size(); i++) {
             if (title.equalsIgnoreCase(posts.get(i).getTitle())) {
@@ -432,6 +552,14 @@ public class Application {
         return -1;
     }
 
+    /**
+     * findComment
+     *
+     * finds a comment in array passed in
+     *
+     * @param context: comment text
+     * @param comments: arraylist
+     **/
     public static int findComment(String context, ArrayList<Comment> comments) {
         for (int i = 0; i < comments.size(); i++) {
             if (comments.get(i).getText().equalsIgnoreCase(context)) {
@@ -441,7 +569,13 @@ public class Application {
         return -1;
     }
 
-
+    /**
+     * usernameValidity
+     *
+     * returns the account with the username
+     *
+     * @param username: username to validate
+     **/
     public static Account usernameValidity(String username) {
         for (int i = 0; i < accounts.size(); i++) {
             if (username.equals(accounts.get(i).getUsername())) {
