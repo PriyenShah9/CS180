@@ -342,11 +342,13 @@ public class ApplicationServer implements Runnable{
         } else {
             synchronized (account) {
                 printWriter.println(account.displayPosts());
+                printWriter.println("Hit any key to get option menu. ");
             }
             printWriter.flush();
             while(bufferedReader.readLine() == null) { //refresh view every 10 seconds or until next command is sent
                 synchronized (account) {
                     printWriter.println(account.displayPosts());
+                    printWriter.println("Hit any key to get option menu. ");
                 }
                 printWriter.flush();
                 try {
@@ -376,11 +378,13 @@ public class ApplicationServer implements Runnable{
             synchronized (account) { //account is the same object as "a" in makeComment so will not make a new comment
                                      //while parsing through the comments; important b/c displayComments a for-each
                 printWriter.println(account.displayComments());
+                printWriter.println("Hit any key to get option menu. ");
             }
             printWriter.flush();
             while(bufferedReader.readLine() == null) { //refresh view every 10 seconds or until next command is sent
                 synchronized (account) {
                     printWriter.println(account.displayComments());
+                    printWriter.println("Hit any key to get option menu. ");
                 }
                 printWriter.flush();
                 try {

@@ -3,7 +3,6 @@ import java.io.IOException;
 import java.util.Scanner;
 import java.net.*;
 
-
 /**
  * Project 4 - ApplicationClient
  * <p>
@@ -15,7 +14,6 @@ import java.net.*;
  */
 
 public class ApplicationClient {
-
     public static void main(String[] args) throws IOException{
         Scanner scan = new Scanner(System.in);
         Socket socket = new Socket("localhost", 4244);
