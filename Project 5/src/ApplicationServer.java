@@ -107,6 +107,7 @@ public class ApplicationServer implements Runnable{
                         }
                         pw.println("Your account was deleted");
                         this.usernameAccountLoggedIn = null;
+                        br.readLine(); //ok button being hit after info message sends a \n
                         break;
                     } else if (ans.equals("4")) {
                         makeComment(pw, br, this.usernameAccountLoggedIn);
@@ -293,6 +294,7 @@ public class ApplicationServer implements Runnable{
             }
             printWriter.println("Your edit was made.");
             printWriter.flush();
+            bufferedReader.readLine(); //client sends \n after hitting ok on info message
         } else if (ans.equalsIgnoreCase("3")) {
             printWriter.println("What is the title of the post you would like to delete? ");
             printWriter.flush();
@@ -310,6 +312,7 @@ public class ApplicationServer implements Runnable{
             posts.remove(a.getPosts().get(postIndex));
             printWriter.println("Your post was deleted.");
             printWriter.flush();
+            bufferedReader.readLine(); //client sends \n after hitting ok on info message
         }
     }
 
@@ -327,15 +330,17 @@ public class ApplicationServer implements Runnable{
         if (account.getPosts().size() == 0) {
             printWriter.println("This user has no posts.");
             printWriter.flush();
+            bufferedReader.readLine(); //client sends \n after hitting ok on info message
         } else {
             do { //refresh view every 10 seconds or until next command is sent
                 synchronized (account) { //account is the same object as "a" in addPost so will not make a new comment
                                          //while parsing through the posts; important b/c displayPosts a for-each
                     printWriter.println(account.displayPosts());
                 }
-                printWriter.println("Hit enter to get option menu. ");
+                printWriter.println("Hit ok to get option menu. ");
                 printWriter.flush();
                 if (bufferedReader.readLine() != null) {
+                    bufferedReader.readLine(); //client sends \n after hitting ok on info message
                     break;
                 }
                 try {
@@ -344,7 +349,6 @@ public class ApplicationServer implements Runnable{
                     Thread.currentThread().interrupt();
                 }
             } while (true);
-            //bufferedReader.readLine();
         }
     }
 
@@ -362,14 +366,16 @@ public class ApplicationServer implements Runnable{
         if (account.getComments().size() == 0) {
             printWriter.println("This user has made no comments.");
             printWriter.flush();
+            bufferedReader.readLine(); //client sends \n after hitting ok on info message
         } else {
             do { //refresh view every 10 seconds or until next command is sent
                 synchronized (account) {
                     printWriter.println(account.displayComments());
-                    printWriter.println("Hit enter to get option menu. ");
+                    printWriter.println("Hit ok to get option menu. ");
                 }
                 printWriter.flush();
-                if (bufferedReader.readLine() != null) {
+                if (bufferedReader.ready() || bufferedReader.readLine() != null) {
+                    bufferedReader.readLine(); //client sends \n after hitting ok on info message
                     break;
                 }
                 try {
@@ -378,7 +384,6 @@ public class ApplicationServer implements Runnable{
                     Thread.currentThread().interrupt();
                 }
             } while(true);
-            //bufferedReader.readLine();
         }
     }
 
@@ -475,6 +480,7 @@ public class ApplicationServer implements Runnable{
             comments.remove(a.getComments().get(commentIndexAccount));
         }
         printWriter.println("Your changes were made.");
+        bufferedReader.readLine(); //client sends \n after hitting ok on info message
     }
 
     public static void importPost(PrintWriter printWriter, BufferedReader bufferedReader, String usernameAccountLoggedIn) throws IOException{
@@ -497,13 +503,16 @@ public class ApplicationServer implements Runnable{
                 }
                 posts.add(post);
                 printWriter.print("The post was added to your account.");
+                bufferedReader.readLine(); //client sends \n after hitting ok on info message
             }
         } catch(FileNotFoundException e) {
             printWriter.println("This file does not exist.");
             printWriter.flush();
+            bufferedReader.readLine(); //client sends \n after hitting ok on info message
         } catch(IOException e) {
             printWriter.println("The information in the file is invalid.");
             printWriter.flush();
+            bufferedReader.readLine(); //client sends \n after hitting ok on info message
         }
     }
 
@@ -531,6 +540,7 @@ public class ApplicationServer implements Runnable{
         } catch (FileNotFoundException e) {
             printWriter.println("An error occurred.");
             printWriter.flush();
+            bufferedReader.readLine(); //client sends \n after hitting ok on info message
         }
     }
 

@@ -91,6 +91,7 @@ public class ApplicationClient extends JComponent implements Runnable {
                     ok.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
+                            pw.println("\n");
                             frame.setVisible(false);
                         }
                     });
@@ -142,7 +143,7 @@ public class ApplicationClient extends JComponent implements Runnable {
         logIn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                pw.println("1");
+                pw.println("1\n");
                 pw.flush();
             }
         });
@@ -150,7 +151,7 @@ public class ApplicationClient extends JComponent implements Runnable {
         newAccount.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                pw.println("2");
+                pw.println("2\n");
                 pw.flush();
             }
         });
@@ -158,7 +159,7 @@ public class ApplicationClient extends JComponent implements Runnable {
         exit.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                pw.println("3");
+                pw.println("3\n");
                 pw.flush();
                 startFrame.dispose();
             }
@@ -206,7 +207,7 @@ public class ApplicationClient extends JComponent implements Runnable {
         editAccount.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                pw.println("1");
+                pw.println("1\n");
                 pw.flush();
             }
         });
@@ -214,7 +215,7 @@ public class ApplicationClient extends JComponent implements Runnable {
         viewPosts.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                pw.println("2");
+                pw.println("2\n");
                 pw.flush();
             }
         });
@@ -222,7 +223,7 @@ public class ApplicationClient extends JComponent implements Runnable {
         deleteAccount.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                pw.println("3");
+                pw.println("3\n");
                 pw.flush();
             }
         });
@@ -230,7 +231,7 @@ public class ApplicationClient extends JComponent implements Runnable {
         makeComment.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                pw.println("4");
+                pw.println("4\n");
                 pw.flush();
             }
         });
@@ -238,7 +239,7 @@ public class ApplicationClient extends JComponent implements Runnable {
         editComment.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                pw.println("5");
+                pw.println("5\n");
                 pw.flush();
             }
         });
@@ -246,7 +247,7 @@ public class ApplicationClient extends JComponent implements Runnable {
         viewComments.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                pw.println("6");
+                pw.println("6\n");
                 pw.flush();
             }
         });
@@ -254,7 +255,7 @@ public class ApplicationClient extends JComponent implements Runnable {
         importPost.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                pw.println("7");
+                pw.println("7\n");
                 pw.flush();
             }
         });
@@ -262,7 +263,7 @@ public class ApplicationClient extends JComponent implements Runnable {
         exportPost.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                pw.println("8");
+                pw.println("8\n");
                 pw.flush();
             }
         });
@@ -270,7 +271,7 @@ public class ApplicationClient extends JComponent implements Runnable {
         logOut.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                pw.println("9");
+                pw.println("9\n");
                 pw.flush();
             }
         });
