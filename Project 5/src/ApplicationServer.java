@@ -74,7 +74,9 @@ public class ApplicationServer implements Runnable{
             ReadData r = new ReadData("accounts.txt", "posts.txt", "comments.txt");
 
             outer: while (true) {
-                String firstAns = initialQuestion(pw, br);
+                //String firstAns = initialQuestion(pw, br);
+                pw.println("Q1 ");
+                String firstAns = br.readLine();
                 if (firstAns.equals("3")) {
                     this.usernameAccountLoggedIn = null;
                     break;
@@ -92,9 +94,12 @@ public class ApplicationServer implements Runnable{
                         accounts.add(a);
                         this.usernameAccountLoggedIn = a.getUsername();
                     }
-                    String ans = nextQuestion(pw, br);
+                    //String ans = nextQuestion(pw, br);
+                    String ans = br.readLine();
                     if (ans.equals("1")) {
                         editAccount(pw, br, this.usernameAccountLoggedIn);
+                        pw.write("1");
+                        pw.flush();
                     } else if (ans.equals("2")) {
                         viewPosts(pw, br);
                     } else if (ans.equals("3")) {

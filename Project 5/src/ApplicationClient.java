@@ -54,58 +54,65 @@ public class ApplicationClient extends JComponent implements Runnable {
     public void run() {
 
         try {
-            socket = new Socket("localhost", 4244);
-            br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            pw = new PrintWriter(socket.getOutputStream());
-            String line;
-            while ((line = br.readLine()) != null) {
-                if (line.length() != 0 && line.charAt(line.length() - 1)== ' ') {
-                    if (line.equals("Q1 ")) {
-                        startScreen();
-                    } else if (line.equals("Q2 ")) {
-                        optionScreen();
-                    } else { //any other time a text response is needed
-                        JFrame frame = new JFrame();
-                        JLabel label = new JLabel(line);
-                        JTextField text = new JTextField(8);
-                        JButton submit = new JButton("Submit");
-                        frame.add(label);
-                        frame.setVisible(true);
-
-                        submit.addActionListener(new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                pw.println(text.getText());
-                                pw.flush();
-                                frame.setVisible(false);
-                            }
-                        });
-                    }
-                } else { //no response needed
-                    JFrame frame = new JFrame();
-                    JLabel label = new JLabel(line);
-                    JButton ok = new JButton("OK");
-                    frame.add(label);
-                    frame.setVisible(true);
-
-                    ok.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            pw.println("\n");
-                            frame.setVisible(false);
-                        }
-                    });
-                }
-            }
-
-            br.close();
-            pw.close();
+            startScreen();
 
             Clicklistener click= new Clicklistener();
             logIn.addActionListener(click);
             newAccount.addActionListener(click);
             exit.addActionListener(click);
             continueButton.addActionListener(click);
+
+            socket = new Socket("localhost", 4244);
+            br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            pw = new PrintWriter(socket.getOutputStream());
+            String line;
+//            while ((line = br.readLine()) != null) {
+
+//                if (line.length() != 0 && line.charAt(line.length() - 1)== ' ') {
+//                    if (line.equals("Q1 ")) {
+//                        //startScreen();
+//                    } else if (line.equals("Q2 ")) {
+                        //optionScreen();
+//                    } else { //any other time a text response is needed
+//                        JFrame frame = new JFrame();
+//                        Container content = frame.getContentPane();
+//                        JLabel label = new JLabel(line);
+//                        JTextField text = new JTextField(8);
+//                        JButton submit = new JButton("Submit");
+//                        content.add(label);
+//                        content.add(submit);
+//                        frame.setVisible(true);
+//
+//                        submit.addActionListener(new ActionListener() {
+//                            @Override
+//                            public void actionPerformed(ActionEvent e) {
+//                                pw.println(text.getText());
+//                                pw.flush();
+//                                frame.setVisible(false);
+//                            }
+//                        });
+//                    }
+//                } else { //no response needed
+//                    JFrame frame = new JFrame();
+//                    JLabel label = new JLabel(line);
+//                    JButton ok = new JButton("OK");
+//                    frame.add(label);
+//                    frame.setVisible(true);
+//
+//                    ok.addActionListener(new ActionListener() {
+//                        @Override
+//                        public void actionPerformed(ActionEvent e) {
+//                            pw.println("\n");
+//                            frame.setVisible(false);
+//                        }
+//                    });
+//                }
+//            }
+//
+//            br.close();
+//            pw.close();
+
+
 
 
 
@@ -116,6 +123,7 @@ public class ApplicationClient extends JComponent implements Runnable {
 
 
     public void startScreen() {
+
         JFrame startFrame = new JFrame();
         JPanel startPanelTop = new JPanel();
         JPanel startPanelBottom = new JPanel();
@@ -170,7 +178,7 @@ public class ApplicationClient extends JComponent implements Runnable {
         JFrame optionFrame = new JFrame();
         Container optionContent = optionFrame.getContentPane();
         optionContent.setLayout(new FlowLayout());
-        optionFrame.setSize(300, 150);
+        optionFrame.setSize(800, 600);
         optionFrame.setLocationRelativeTo(null);
         optionFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -304,6 +312,9 @@ public class ApplicationClient extends JComponent implements Runnable {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // communicate with server to validate input
+                String user = username.getText();
+                pw.println(user);
+                pw.flush();
             }
         });
 
@@ -311,6 +322,9 @@ public class ApplicationClient extends JComponent implements Runnable {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // communicate with server to validate input
+                String pass = username.getText();
+                pw.println(pass);
+                pw.flush();
             }
         });
     }
@@ -478,14 +492,22 @@ public class ApplicationClient extends JComponent implements Runnable {
 
     private class Clicklistener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            if (e.getSource() == logIn) {
+            String input = "";
+            try {
+                input = br.readLine();
+            } catch (IOException ie) {
+                ie.printStackTrace();
+            }
+            if (e.getSource() == logIn && input.equals("Q1 ")) {
                 logInScreen();
+                pw.println("1");
+                pw.flush();
             } else if (e.getSource() == newAccount) {
                 newAccountScreen();
             } else if (e.getSource() == exit) {
                 return; // need to get exit button to work
             } else if (e.getSource() == continueButton) { // check that everything is valid
-                accountPage();
+                optionScreen();
             } else if (e.getSource() == editAccount) {
                 JOptionPane.showMessageDialog(null, "",
                                 "Edit Account", JOptionPane.PLAIN_MESSAGE);
