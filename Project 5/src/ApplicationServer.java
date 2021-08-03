@@ -11,7 +11,7 @@ import java.util.List;
  * does all the computations and stores all the information.
  *
  * @author Team #002, Section Y01
- * @version August 2, 2021
+ * @version August 3, 2021
  */
 
 public class ApplicationServer implements Runnable{
