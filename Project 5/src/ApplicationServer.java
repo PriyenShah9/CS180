@@ -75,6 +75,9 @@ public class ApplicationServer implements Runnable{
 
             outer: while (true) {
                 String firstAns = initialQuestion(pw, br);
+                pw.write(firstAns);
+                pw.println();
+                pw.flush();
                 if (firstAns.equals("3")) {
                     this.usernameAccountLoggedIn = null;
                     break;
