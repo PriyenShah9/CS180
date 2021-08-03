@@ -66,7 +66,7 @@ public class ApplicationClient {
         enterButton.addActionListener(actionListener);
         p.add(enterButton);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(600, 300);
+        frame.setSize(600, 400);
         content.add(scroll, BorderLayout.NORTH);
         content.add(p, BorderLayout.SOUTH);
         frame.setVisible(true);
