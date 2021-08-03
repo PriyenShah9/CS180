@@ -15,10 +15,13 @@ adds a GUI, network, and the use of concurrency.
 ** Instructions
 
 Compile as usual, making sure all files are in the same directory.
-  If using IntelliJ and if there is a .csv file or a storagefile.txt with desired "previous run" information, 
-  these should be placed in the same directory as the module containing the program files.
+  If using IntelliJ and if there is a .csv file or a storagefiles (accounts.txt, posts.txt, comments.txt) 
+  with desired "previous run" information, these should be placed in the same directory as the module 
+  containing the program files.
   No testing of extra file placement was carried out for other IDEs as all team members use IntelliJ.
-Run ApplicationServer first, then start ApplicationClient. It should automatically connect. 
+  Run ApplicationServer first, then start ApplicationClient. It should automatically connect. 
+  
+  The only other thing is that selecting "edit account" will allow you to do actions regarding posts.
 ***
 ** Class Application
 
@@ -40,18 +43,6 @@ ApplicationClient to display.
 This class also implements concurrency, which is discussed in a later section.
 ***
 ** Classes Account, Post, Comment, Exceptions
-
-** Class Application
-This class runs the main method of the program that interacts with the user. 
-Users will be prompted to create an account, log in, or exit the application.
-Once logged in using a password, users will be able to make posts or comments and view others'
-posts and comments.
-
-Editing and deleting is restricted to the users that created the account/post/comment. 
-Additionally, only users that are logged in will be able to see any posts or comments.
-
-Most importantly, this class is in charge of loading in data from previous runs of the program
-and storing any changes made after a user logs out. 
 
 ** Class Account
 This class stores all information about accounts. This includes name, username, password,
@@ -81,11 +72,20 @@ descriptions given here.
 Concurrency is implemented on the ApplicationServer class and allows many users to be connected
 at the same time. Threads and the Runnable interface are used to carry out this task and synchronized 
 blocks are used to eliminate race conditions. There are three static ArrayLists for Accounts, Posts, and Comments
-in order to store information that is accessible to all threads. 
+in order to store information that is accessible to all threads. These ArrayLists are using Collections.synchronizedList
+to help eliminate race conditions when adding or removing.
+
+Gatekeepers involved are accountsGatekeeper, postsGatekeeper, commentsGatekeeper, and some of the accounts being
+loaded. These are used to lock different methods together. For example, two threads cannot have one access the method 
+viewing posts and the other access the method making a post on the account being viewed at the same time.
+
+Lastly, there is a real-time update implementation. This is used to automatically refresh the posts or comments when
+someone is viewing all posts or all comments from a user. This is not done through threading, but rather just
+re-displaying during the time when the "ok" button is not pressed.
 ***
 ** Submission Responsibilities
 
-Submission to Vocareum - Arko Mukhopadhyay
+Submission of Code to Vocareum - Arko Mukhopadhyay
 
 Submission of Report to Brightspace - Ilina Adhikari
 
