@@ -13,7 +13,7 @@ import java.net.*;
  * does all the interactions with the user through the GUI.
  *
  * @author Team #002, Section Y01
- * @version August 2, 2021
+ * @version August 3, 2021
  */
 
 public class ApplicationClient extends JComponent implements Runnable {

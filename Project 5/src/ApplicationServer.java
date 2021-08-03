@@ -11,7 +11,7 @@ import java.util.List;
  * does all the computations and stores all the information.
  *
  * @author Team #002, Section Y01
- * @version August 2, 2021
+ * @version August 3, 2021
  */
 
 public class ApplicationServer implements Runnable{
@@ -84,9 +84,7 @@ public class ApplicationServer implements Runnable{
             ReadData r = new ReadData("accounts.txt", "posts.txt", "comments.txt");
 
             outer: while (true) {
-                //String firstAns = initialQuestion(pw, br);
-                pw.println("Q1 ");
-                String firstAns = br.readLine();
+                String firstAns = initialQuestion(pw, br);
                 if (firstAns.equals("3")) {
                     this.usernameAccountLoggedIn = null;
                     break;
@@ -104,8 +102,7 @@ public class ApplicationServer implements Runnable{
                         accounts.add(a);
                         this.usernameAccountLoggedIn = a.getUsername();
                     }
-                    //String ans = nextQuestion(pw, br);
-                    String ans = br.readLine();
+                    String ans = nextQuestion(pw, br);
                     if (ans.equals("1")) {
                         editAccount(pw, br, this.usernameAccountLoggedIn);
                         pw.write("1");
@@ -169,7 +166,10 @@ public class ApplicationServer implements Runnable{
      * @return String: answer to the first questions
      **/
     public static String initialQuestion(PrintWriter printWriter, BufferedReader bufferedReader) throws IOException{
-        printWriter.println("Q1 ");
+        printWriter.println("\"Would you like to:" +
+                "\n1. Log in" +
+                "\n2. Create an Account" +
+                "\n3. Exit the program ");
         printWriter.flush();
         String ans = bufferedReader.readLine();
         while (!(ans.equals("1")) && !(ans.equals("2")) && !(ans.equals("3"))) {
@@ -194,7 +194,16 @@ public class ApplicationServer implements Runnable{
      * @return String: answer to the first questions
      **/
     public static String nextQuestion(PrintWriter printWriter, BufferedReader bufferedReader) throws IOException{
-        printWriter.println("Q2 ");
+        printWriter.println("Would you like to:" +
+                "\n1. Edit your account." +
+                "\n2. View all of a user's posts." +
+                "\n3. Delete account." +
+                "\n4. Make a comment." +
+                "\n5. Edit/Delete a comment." +
+                "\n6. View all of a user's comments." +
+                "\n7. Import a post." +
+                "\n8. Export a post." +
+                "\n9. Log out. ");
         printWriter.flush();
         String ans = bufferedReader.readLine();
         while (!(ans.equals("1")) && !(ans.equals("2")) && !(ans.equals("3")) && !(ans.equals("4")) &&
@@ -356,7 +365,7 @@ public class ApplicationServer implements Runnable{
             }
             printWriter.println("Your edit was made.");
             printWriter.flush();
-            bufferedReader.readLine(); //client sends \n after hitting ok on info message
+            //bufferedReader.readLine(); //client sends \n after hitting ok on info message
         } else if (ans.equalsIgnoreCase("3")) {
             printWriter.println("What is the title of the post you would like to delete? ");
             printWriter.flush();
@@ -374,7 +383,7 @@ public class ApplicationServer implements Runnable{
             posts.remove(a.getPosts().get(postIndex));
             printWriter.println("Your post was deleted.");
             printWriter.flush();
-            bufferedReader.readLine(); //client sends \n after hitting ok on info message
+            //bufferedReader.readLine(); //client sends \n after hitting ok on info message
         }
     }
 
@@ -400,25 +409,31 @@ public class ApplicationServer implements Runnable{
         if (account.getPosts().size() == 0) {
             printWriter.println("This user has no posts.");
             printWriter.flush();
-            bufferedReader.readLine(); //client sends \n after hitting ok on info message
+            //bufferedReader.readLine(); //client sends \n after hitting ok on info message
         } else {
-            do { //refresh view every 10 seconds or until next command is sent
-                synchronized (account) { //account is the same object as "a" in addPost so will not make a new comment
+            synchronized (account) {
+                printWriter.println(account.displayPosts());
+            }
+            printWriter.flush();
+
+            //real-time updating, commented out since it doesn't work with SimpleGUI
+             //do { //refresh view every 10 seconds or until next command is sent
+              //  synchronized (account) { //account is the same object as "a" in addPost so will not make a new comment
                                          //while parsing through the posts; important b/c displayPosts a for-each
-                    printWriter.println(account.displayPosts());
-                }
-                printWriter.println("Hit ok to get option menu. ");
-                printWriter.flush();
-                if (bufferedReader.readLine() != null) {
-                    bufferedReader.readLine(); //client sends \n after hitting ok on info message
-                    break;
-                }
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            } while (true);
+                //    printWriter.println(account.displayPosts());
+                //}
+                //printWriter.println("Hit ok to get option menu. ");
+                //printWriter.flush();
+                //if (bufferedReader.readLine() != null) {
+                //    bufferedReader.readLine(); //client sends \n after hitting ok on info message
+                //    break;
+                //}
+                //try {
+                 //   Thread.sleep(5000);
+                //} catch (InterruptedException e) {
+                //    Thread.currentThread().interrupt();
+                //}
+            //} while (true);
         }
     }
 
@@ -444,24 +459,28 @@ public class ApplicationServer implements Runnable{
         if (account.getComments().size() == 0) {
             printWriter.println("This user has made no comments.");
             printWriter.flush();
-            bufferedReader.readLine(); //client sends \n after hitting ok on info message
+            //bufferedReader.readLine(); //client sends \n after hitting ok on info message
         } else {
-            do { //refresh view every 10 seconds or until next command is sent
-                synchronized (account) {
-                    printWriter.println(account.displayComments());
-                    printWriter.println("Hit ok to get option menu. ");
-                }
-                printWriter.flush();
-                if (bufferedReader.ready() || bufferedReader.readLine() != null) {
-                    bufferedReader.readLine(); //client sends \n after hitting ok on info message
-                    break;
-                }
-                try {
-                    Thread.sleep(10000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            } while(true);
+            synchronized (account) {
+                printWriter.println(account.displayComments());
+            }
+            printWriter.flush();
+            //do { //refresh view every 10 seconds or until next command is sent
+              //  synchronized (account) {
+                //    printWriter.println(account.displayComments());
+                  //  printWriter.println("Hit ok to get option menu. ");
+             //   }
+               // printWriter.flush();
+             //   if (bufferedReader.ready() || bufferedReader.readLine() != null) {
+               //     bufferedReader.readLine(); //client sends \n after hitting ok on info message
+                 //   break;
+                //}
+                //try {
+                  //  Thread.sleep(10000);
+                //} catch (InterruptedException e) {
+                  //  Thread.currentThread().interrupt();
+                //}
+            //} while(true);
         }
     }
 
@@ -576,7 +595,7 @@ public class ApplicationServer implements Runnable{
             comments.remove(a.getComments().get(commentIndexAccount));
         }
         printWriter.println("Your changes were made.");
-        bufferedReader.readLine(); //client sends \n after hitting ok on info message
+        //bufferedReader.readLine(); //client sends \n after hitting ok on info message
     }
 
     /**
@@ -609,16 +628,16 @@ public class ApplicationServer implements Runnable{
                 }
                 posts.add(post);
                 printWriter.print("The post was added to your account.");
-                bufferedReader.readLine(); //client sends \n after hitting ok on info message
+                //bufferedReader.readLine(); //client sends \n after hitting ok on info message
             }
         } catch(FileNotFoundException e) {
             printWriter.println("This file does not exist.");
             printWriter.flush();
-            bufferedReader.readLine(); //client sends \n after hitting ok on info message
+            //bufferedReader.readLine(); //client sends \n after hitting ok on info message
         } catch(IOException e) {
             printWriter.println("The information in the file is invalid.");
             printWriter.flush();
-            bufferedReader.readLine(); //client sends \n after hitting ok on info message
+            //bufferedReader.readLine(); //client sends \n after hitting ok on info message
         }
     }
 
@@ -655,7 +674,7 @@ public class ApplicationServer implements Runnable{
         } catch (FileNotFoundException e) {
             printWriter.println("An error occurred.");
             printWriter.flush();
-            bufferedReader.readLine(); //client sends \n after hitting ok on info message
+            //bufferedReader.readLine(); //client sends \n after hitting ok on info message
         }
     }
 
