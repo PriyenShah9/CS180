@@ -54,24 +54,34 @@ public class ApplicationClient extends JComponent implements Runnable {
     static String line;
     public static void main(String[] args) throws IOException {
         ApplicationClient ac = new ApplicationClient();
-        SwingUtilities.invokeLater(ac);
+
+        JOptionPane.showMessageDialog(null, "Welcome to PostStar!",
+                "PostStar", JOptionPane.PLAIN_MESSAGE);
+        //SwingUtilities.invokeLater(ac);
         socket = new Socket("localhost", 4244);
         br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         pw = new PrintWriter(socket.getOutputStream());
         while ((line = br.readLine()) != null) {
+            String ans = JOptionPane.showInputDialog(null, line,
+                    "PostStar", JOptionPane.PLAIN_MESSAGE);
+            pw.println(ans);
+            pw.flush();
             if (line.length() != 0 && line.charAt(line.length() - 1) == ' ') {
-                if (line.equals("Q1 ")) {
-                    q1 = true;
-                } else if (line.equals("Q2 ")) {
-                    q2 = true;
-                } else { //any other time a text response is needed
-                    response = true;
-                }
-            } else { //no response needed
-                message = true;
-            }
-        }
+//                if (line.equals("Q1 ")) {
+//                    q1 = true;
+//                } else if (line.equals("Q2 ")) {
+//                    q2 = true;
+//                } else { //any other time a text response is needed
+//                    response = true;
+//                }
+//            } else { //no response needed
+//                message = true;
+//            }
 
+            }
+
+
+        }
         br.close();
         pw.close();
     }
@@ -118,11 +128,7 @@ public class ApplicationClient extends JComponent implements Runnable {
                 });
             }
 
-            //Clicklistener click= new Clicklistener();
-            //logIn.addActionListener(click);
-            //newAccount.addActionListener(click);
-            //exit.addActionListener(click);
-            //continueButton.addActionListener(click);
+
         }
     }
 
@@ -151,6 +157,12 @@ public class ApplicationClient extends JComponent implements Runnable {
         startContent.add(startPanelBottom, BorderLayout.SOUTH);
 
         startFrame.setVisible(true);
+
+        Clicklistener click= new Clicklistener();
+        logIn.addActionListener(click);
+        newAccount.addActionListener(click);
+        exit.addActionListener(click);
+        continueButton.addActionListener(click);
 
         // if any button is clicked, hide frame
         logIn.addActionListener(new ActionListener() {
@@ -238,6 +250,8 @@ public class ApplicationClient extends JComponent implements Runnable {
             public void actionPerformed(ActionEvent e) {
                 pw.println("3\n");
                 pw.flush();
+                JOptionPane.showMessageDialog(null, "Are you sure you would like to proceed?",
+                        "Delete Account", JOptionPane.ERROR_MESSAGE);
             }
         });
 

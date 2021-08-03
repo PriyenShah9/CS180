@@ -84,9 +84,8 @@ public class ApplicationServer implements Runnable{
             ReadData r = new ReadData("accounts.txt", "posts.txt", "comments.txt");
 
             outer: while (true) {
-                //String firstAns = initialQuestion(pw, br);
+                String firstAns = initialQuestion(pw, br);
                 pw.println("Q1 ");
-                String firstAns = br.readLine();
                 if (firstAns.equals("3")) {
                     this.usernameAccountLoggedIn = null;
                     break;
@@ -173,11 +172,11 @@ public class ApplicationServer implements Runnable{
         printWriter.flush();
         String ans = bufferedReader.readLine();
         while (!(ans.equals("1")) && !(ans.equals("2")) && !(ans.equals("3"))) {
-            printWriter.println("You must answer with either 1, 2, or 3." +
-                    "\nWould you like to:" +
-                    "\n1. Log in" +
-                    "\n2. Create an Account" +
-                    "\n3. Exit the program ");
+            printWriter.println("You must answer with either 1, 2, or 3. " +
+                    "Would you like to: " +
+                    "1. Log in " +
+                    "2. Create an Account " +
+                    "3. Exit the program ");
             printWriter.flush();
             ans = bufferedReader.readLine();
         }
@@ -200,17 +199,17 @@ public class ApplicationServer implements Runnable{
         while (!(ans.equals("1")) && !(ans.equals("2")) && !(ans.equals("3")) && !(ans.equals("4")) &&
                 !(ans.equals("5")) && !(ans.equals("6")) && !(ans.equals("7")) && !(ans.equals("8"))
                 && !ans.equals("9")) {
-            printWriter.println("You must answer with either 1, 2, 3, 4, 5, 6, 7, 8, or 9." +
-                    " Would you like to:" +
-                    "\n1. Edit your account." +
-                    "\n2. View all of a user's posts." +
-                    "\n3. Delete account." +
-                    "\n4. Make a comment." +
-                    "\n5. Edit/Delete a comment." +
-                    "\n6. View all of a user's comments." +
-                    "\n7. Import a post." +
-                    "\n8. Export a post." +
-                    "\n9. Log out. ");
+            printWriter.println("You must answer with either 1, 2, 3, 4, 5, 6, 7, 8, or 9. " +
+                    " Would you like to: " +
+                    "1. Edit your account. " +
+                    "2. View all of a user's posts. " +
+                    "3. Delete account. " +
+                    "4. Make a comment. " +
+                    "5. Edit/Delete a comment. " +
+                    "6. View all of a user's comments. " +
+                    "7. Import a post. " +
+                    "8. Export a post. " +
+                    "9. Log out. ");
             printWriter.flush();
             ans = bufferedReader.readLine();
         }
@@ -235,8 +234,8 @@ public class ApplicationServer implements Runnable{
         printWriter.flush();
         String username = bufferedReader.readLine();
         while (usernameValidity(username) != null) {
-            printWriter.println("This username is taken." +
-                    "\nTry again: ");
+            printWriter.println("This username is taken. " +
+                    "Try again: ");
             printWriter.flush();
             username = bufferedReader.readLine();
         }
@@ -247,8 +246,8 @@ public class ApplicationServer implements Runnable{
         printWriter.flush();
         String reenteredPassword = bufferedReader.readLine();
         while (!password.equals(reenteredPassword)) {
-            printWriter.println("That is incorrect." +
-                    "\nTry again: ");
+            printWriter.println("That is incorrect. " +
+                    "Try again: ");
             printWriter.flush();
             reenteredPassword = bufferedReader.readLine();
         }
@@ -280,8 +279,8 @@ public class ApplicationServer implements Runnable{
         printWriter.flush();
         String password = bufferedReader.readLine();
         while (!password.equals(a.getPassword())) {
-            printWriter.println("Password is invalid." +
-                    "\nTry again: ");
+            printWriter.println("Password is invalid. " +
+                    "Try again: ");
             printWriter.flush();
             password = bufferedReader.readLine();
         }
