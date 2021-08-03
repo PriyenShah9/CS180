@@ -1,231 +1,160 @@
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
-/**
- * Project 5 - ApplicationServer
- * <p>
- * The ApplicationServer class is the class that
- * does all the computations and stores all the information.
- *
- * @author Team #002, Section Y01
- * @version August 2, 2021
- */
+public class ApplicationServer {
 
-public class ApplicationServer implements Runnable{
-
-    //Collections.synchronizedList should synchronize operations like add or remove, but iterating through lists
-    //still needs to be manually synchronized
-    private static List<Account> accounts = Collections.synchronizedList(new ArrayList<Account>());
-    private static List<Post> posts = Collections.synchronizedList(new ArrayList<Post>());
-    private static List<Comment> comments = Collections.synchronizedList(new ArrayList<Comment>());
-
-    private static boolean prevAccounts = true;
+    private static ArrayList<Account> accounts = new ArrayList<Account>();
+    private static ArrayList<Post> posts = new ArrayList<Post>();
+    private static ArrayList<Comment> comments = new ArrayList<Comment>();
+    private static String usernameAccountLoggedIn;
 
     //gatekeepers
     private static Object accountsGatekeeper = new Object();
     private static Object postsGatekeeper = new Object();
     private static Object commentsGatekeeper = new Object();
 
-    //fields of ApplicationServer objects
-    private String usernameAccountLoggedIn;
-    private Socket socket;
-
-    /**
-     * constructs an applicationserver object
-     * for threading
-     */
-    public ApplicationServer(Socket socket) {
-        this.socket = socket;
-    }
-
-    /**
-     * main
-     *
-     * loads data, socket, starts threads
-     **/
-    public static void main(String[] args) throws IOException {
-        ReadData r = new ReadData("accounts.txt", "posts.txt", "comments.txt");
+    public static void main(String[] args) {
         try {
-            r.readAccounts();
-            r.readPosts();
-            r.readComments();
-        } catch (IOException e) {
-            prevAccounts = false;
-        }
-        accounts = r.accounts;
-        posts = r.posts;
-        comments = r.comments;
-        postTransfer();
-        commentTransfer();
-
-        ServerSocket ss = new ServerSocket(4244);
-        ArrayList<ApplicationServer> as = new ArrayList<>();
-        int i = 0;
-        while (true) {
+            ServerSocket ss = new ServerSocket(4244);
             Socket socket = ss.accept();
-            System.out.println("Connected");
-            as.add(new ApplicationServer(socket));
-            new Thread(as.get(i++)).start();
-        }
-    }
-
-    /**
-     * run
-     *
-     * calls other methods, writes data
-     **/
-    public void run() {
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
-             PrintWriter pw = new PrintWriter(this.socket.getOutputStream())) {
-
-            ReadData r = new ReadData("accounts.txt", "posts.txt", "comments.txt");
-
-            outer: while (true) {
-                String firstAns = initialQuestion(pw, br);
-                pw.println("Q1 ");
-                if (firstAns.equals("3")) {
-                    this.usernameAccountLoggedIn = null;
-                    break;
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                 PrintWriter pw = new PrintWriter(socket.getOutputStream())) {
+                ReadData r = new ReadData("accounts.txt", "posts.txt", "comments.txt");
+                try {
+                    r.readAccounts();
+                    r.readPosts();
+                    r.readComments();
+                } catch (IOException e) {
+                    throw e;
                 }
+                accounts = r.accounts;
+                posts = r.posts;
+                comments = r.comments;
+                postTransfer();
+                commentTransfer();
                 while (true) {
-                    if (firstAns.equals("1")) {
-                        if (prevAccounts) {
-                            this.usernameAccountLoggedIn = login(pw, br);
-                        } else {
-                            prevAccounts = true; //does not need to be synced because they'll all just change it to true
-                            continue outer;
-                        }
-                    } else if (firstAns.equals("2")) {
-                        Account a = createAccount(pw, br);
-                        accounts.add(a);
-                        this.usernameAccountLoggedIn = a.getUsername();
-                    }
-                    //String ans = nextQuestion(pw, br);
-                    String ans = br.readLine();
-                    if (ans.equals("1")) {
-                        editAccount(pw, br, this.usernameAccountLoggedIn);
-                        pw.write("1");
+                    String firstAns = initialQuestion(pw, br);
+                    if (firstAns.equals("3")) {
+                        pw.println("Program Exit.");
                         pw.flush();
-                    } else if (ans.equals("2")) {
-                        viewPosts(pw, br);
-                    } else if (ans.equals("3")) {
-                        synchronized (accountsGatekeeper) {
-                            for (int i = 0; i < accounts.size(); i++) {
-                                if (this.usernameAccountLoggedIn.equals(accounts.get(i).getUsername())) {
-                                    accounts.remove(i);
+                        usernameAccountLoggedIn = null;
+                        break;
+                    }
+                    while (true) {
+                        if (firstAns.equals("1")) {
+                            usernameAccountLoggedIn = login(pw, br);
+                        } else if (firstAns.equals("2")) {
+                            Account a = createAccount(pw, br);
+                            accounts.add(a);
+                            usernameAccountLoggedIn = a.getUsername();
+                        }
+                        String ans = nextQuestion(pw, br);
+                        if (ans.equals("1")) {
+                            editAccount(pw, br);
+                        } else if (ans.equals("2")) {
+                            viewPosts(pw, br);
+                        } else if (ans.equals("3")) {
+                            synchronized (accountsGatekeeper) {
+                                for (int i = 0; i < accounts.size(); i++) {
+                                    if (usernameAccountLoggedIn.equals(accounts.get(i).getUsername())) {
+                                        accounts.remove(i);
+                                    }
                                 }
                             }
+                            pw.println("Your account was deleted");
+                            usernameAccountLoggedIn = null;
+                            break;
+                        } else if (ans.equals("4")) {
+                            makeComment(pw, br);
+                        } else if (ans.equals("5")) {
+                            editComment(pw, br);
+                        } else if (ans.equals("6")) {
+                            viewComments(pw, br);
+                        } else if (ans.equals("7")) {
+                            importPost(pw, br);
+                        } else if (ans.equals("8")) {
+                            exportPost(pw, br);
+                        } else {
+                            Account a = usernameValidity(usernameAccountLoggedIn);
+                            a.logOut();
+                            usernameAccountLoggedIn = null;
+                            break;
                         }
-                        pw.println("Your account was deleted");
-                        this.usernameAccountLoggedIn = null;
-                        br.readLine(); //ok button being hit after info message sends a \n
-                        break;
-                    } else if (ans.equals("4")) {
-                        makeComment(pw, br, this.usernameAccountLoggedIn);
-                    } else if (ans.equals("5")) {
-                        editComment(pw, br, this.usernameAccountLoggedIn);
-                    } else if (ans.equals("6")) {
-                        this.viewComments(pw, br);
-                    } else if (ans.equals("7")) {
-                        this.importPost(pw, br, this.usernameAccountLoggedIn);
-                    } else if (ans.equals("8")) {
-                        this.exportPost(pw, br);
-                    } else {
-                        Account a = usernameValidity(this.usernameAccountLoggedIn);
-                        a.logOut();
-                        this.usernameAccountLoggedIn = null;
-                        break;
+                        firstAns = "";
                     }
-                    firstAns = "";
                 }
-            }
-            r.accounts = (ArrayList<Account>) accounts;
-            r.posts = (ArrayList<Post>) posts;
-            r.comments = (ArrayList<Comment>) comments;
-            try {
-                r.writeAccountInformation();
-                r.writePostInformation();
-                r.writeCommentInformation();
+                r.accounts = accounts;
+                r.posts = posts;
+                r.comments = comments;
+                try {
+                    r.writeAccountInformation();
+                    r.writePostInformation();
+                    r.writeCommentInformation();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             } catch (IOException e) {
-                e.printStackTrace();
+                throw e;
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
-    /**
-     * initialQuestion
-     *
-     * first 3 options
-     *
-     * @param printWriter: printwriter
-     * @param bufferedReader: bufferedreader
-     * @return String: answer to the first questions
-     **/
     public static String initialQuestion(PrintWriter printWriter, BufferedReader bufferedReader) throws IOException{
-        printWriter.println("Q1 ");
+        printWriter.println("Would you like to:" +
+                "\n1. Log in" +
+                "\n2. Create an Account" +
+                "\n3. Exit the program ");
         printWriter.flush();
         String ans = bufferedReader.readLine();
         while (!(ans.equals("1")) && !(ans.equals("2")) && !(ans.equals("3"))) {
-            printWriter.println("You must answer with either 1, 2, or 3. " +
-                    "Would you like to: " +
-                    "1. Log in " +
-                    "2. Create an Account " +
-                    "3. Exit the program ");
+            printWriter.println("You must answer with either 1, 2, or 3." +
+                    "\nWould you like to:" +
+                    "\n1. Log in" +
+                    "\n2. Create an Account" +
+                    "\n3. Exit the program ");
             printWriter.flush();
             ans = bufferedReader.readLine();
         }
         return ans;
     }
 
-    /**
-     * nextQuestion
-     *
-     * 9 options that are available after logging in
-     *
-     * @param printWriter: printwriter
-     * @param bufferedReader: bufferedreader
-     * @return String: answer to the first questions
-     **/
+
     public static String nextQuestion(PrintWriter printWriter, BufferedReader bufferedReader) throws IOException{
-        printWriter.println("Q2 ");
+        printWriter.println("Would you like to:" +
+                "\n1. Edit your account." +
+                "\n2. View all of a user's posts." +
+                "\n3. Delete account." +
+                "\n4. Make a comment." +
+                "\n5. Edit/Delete a comment." +
+                "\n6. View all of a user's comments." +
+                "\n7. Import a post." +
+                "\n8. Export a post." +
+                "\n9. Log out. ");
         printWriter.flush();
         String ans = bufferedReader.readLine();
         while (!(ans.equals("1")) && !(ans.equals("2")) && !(ans.equals("3")) && !(ans.equals("4")) &&
                 !(ans.equals("5")) && !(ans.equals("6")) && !(ans.equals("7")) && !(ans.equals("8"))
                 && !ans.equals("9")) {
-            printWriter.println("You must answer with either 1, 2, 3, 4, 5, 6, 7, 8, or 9. " +
-                    " Would you like to: " +
-                    "1. Edit your account. " +
-                    "2. View all of a user's posts. " +
-                    "3. Delete account. " +
-                    "4. Make a comment. " +
-                    "5. Edit/Delete a comment. " +
-                    "6. View all of a user's comments. " +
-                    "7. Import a post. " +
-                    "8. Export a post. " +
-                    "9. Log out. ");
+            printWriter.println("You must answer with either 1, 2, 3, 4, 5, 6, 7, 8, or 9." +
+                    " Would you like to:" +
+                    "\n1. Edit your account." +
+                    "\n2. View all of a user's posts." +
+                    "\n3. Delete account." +
+                    "\n4. Make a comment." +
+                    "\n5. Edit/Delete a comment." +
+                    "\n6. View all of a user's comments." +
+                    "\n7. Import a post." +
+                    "\n8. Export a post." +
+                    "\n9. Log out. ");
             printWriter.flush();
             ans = bufferedReader.readLine();
         }
         return ans;
     }
 
-    /**
-     * createAccount
-     *
-     * if user selects 2 in initial questions:
-     * all questions and actions needed to create an account
-     * new account is added to accounts array
-     *
-     * @param printWriter
-     * @param bufferedReader
-     **/
     public static Account createAccount(PrintWriter printWriter, BufferedReader bufferedReader)  throws IOException {
         printWriter.println("What is your name? ");
         printWriter.flush();
@@ -234,8 +163,8 @@ public class ApplicationServer implements Runnable{
         printWriter.flush();
         String username = bufferedReader.readLine();
         while (usernameValidity(username) != null) {
-            printWriter.println("This username is taken. " +
-                    "Try again: ");
+            printWriter.print("This username is taken." +
+                    "\nTry again: ");
             printWriter.flush();
             username = bufferedReader.readLine();
         }
@@ -246,24 +175,15 @@ public class ApplicationServer implements Runnable{
         printWriter.flush();
         String reenteredPassword = bufferedReader.readLine();
         while (!password.equals(reenteredPassword)) {
-            printWriter.println("That is incorrect. " +
-                    "Try again: ");
+            printWriter.print("That is incorrect." +
+                    "\nTry again: ");
             printWriter.flush();
             reenteredPassword = bufferedReader.readLine();
         }
         return new Account(name, username, password, true);
     }
 
-    /**
-     * login
-     *
-     * if user selects 1 in initial question:
-     * asks for username until a username that exists is provided
-     * and checks for the password to be the same
-     *
-     * @param printWriter
-     * @param bufferedReader
-     **/
+
     public static String login(PrintWriter printWriter, BufferedReader bufferedReader) throws IOException{
         printWriter.println("Username: ");
         printWriter.flush();
@@ -279,8 +199,8 @@ public class ApplicationServer implements Runnable{
         printWriter.flush();
         String password = bufferedReader.readLine();
         while (!password.equals(a.getPassword())) {
-            printWriter.println("Password is invalid. " +
-                    "Try again: ");
+            printWriter.println("Password is invalid." +
+                    "\nTry again: ");
             printWriter.flush();
             password = bufferedReader.readLine();
         }
@@ -288,18 +208,7 @@ public class ApplicationServer implements Runnable{
         return username;
     }
 
-    /**
-     * editAccount
-     *
-     * after 1 is selected in nextQuestion:
-     * - can make, edit, or delete a post
-     * implementations for all three are in here
-     *
-     * @param printWriter
-     * @param bufferedReader
-     * @param usernameAccountLoggedIn
-     **/
-    public static void editAccount(PrintWriter printWriter, BufferedReader bufferedReader, String usernameAccountLoggedIn) throws IOException{
+    public static void editAccount(PrintWriter printWriter, BufferedReader bufferedReader) throws IOException{
         Account a = usernameValidity(usernameAccountLoggedIn);
         printWriter.println("Would you like to:" +
                 "\n1. Make a post." +
@@ -330,7 +239,6 @@ public class ApplicationServer implements Runnable{
             printWriter.flush();
             String postContent = bufferedReader.readLine();
             Post post = new Post(title, a.getUsername(), postContent);
-            posts.add(post);
             synchronized (a) {
                 a.addPost(post);
             }
@@ -355,7 +263,6 @@ public class ApplicationServer implements Runnable{
             }
             printWriter.println("Your edit was made.");
             printWriter.flush();
-            bufferedReader.readLine(); //client sends \n after hitting ok on info message
         } else if (ans.equalsIgnoreCase("3")) {
             printWriter.println("What is the title of the post you would like to delete? ");
             printWriter.flush();
@@ -370,27 +277,17 @@ public class ApplicationServer implements Runnable{
             synchronized (a) {
                 a.getPosts().remove(postIndex);
             }
-            posts.remove(a.getPosts().get(postIndex));
             printWriter.println("Your post was deleted.");
             printWriter.flush();
-            bufferedReader.readLine(); //client sends \n after hitting ok on info message
         }
     }
 
-    /**
-     * viewPosts
-     *
-     * to view all posts from a user
-     *
-     * @param printWriter
-     * @param bufferedReader
-     **/
     public static void viewPosts(PrintWriter printWriter, BufferedReader bufferedReader) throws IOException{
         printWriter.println("Enter the username of the account you would like to view: ");
         printWriter.flush();
         String username = bufferedReader.readLine();
         while (usernameValidity(username) == null) {
-            printWriter.println("This username does not exist." +
+            printWriter.print("This username does not exist." +
                     "\nTry again: ");
             printWriter.flush();
             username = bufferedReader.readLine();
@@ -399,42 +296,20 @@ public class ApplicationServer implements Runnable{
         if (account.getPosts().size() == 0) {
             printWriter.println("This user has no posts.");
             printWriter.flush();
-            bufferedReader.readLine(); //client sends \n after hitting ok on info message
         } else {
-            do { //refresh view every 10 seconds or until next command is sent
-                synchronized (account) { //account is the same object as "a" in addPost so will not make a new comment
-                                         //while parsing through the posts; important b/c displayPosts a for-each
-                    printWriter.println(account.displayPosts());
-                }
-                printWriter.println("Hit ok to get option menu. ");
-                printWriter.flush();
-                if (bufferedReader.readLine() != null) {
-                    bufferedReader.readLine(); //client sends \n after hitting ok on info message
-                    break;
-                }
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            } while (true);
+            synchronized (account) {
+                printWriter.println(account.displayPosts());
+            }
+            printWriter.flush();
         }
     }
 
-    /**
-     * viewComments
-     *
-     * to view all comments made by a user
-     *
-     * @param printWriter
-     * @param bufferedReader
-     **/
     public static void viewComments(PrintWriter printWriter, BufferedReader bufferedReader) throws IOException{
         printWriter.println("Enter the username of the account you would like to view: ");
         printWriter.flush();
         String username = bufferedReader.readLine();
         while (usernameValidity(username) == null) {
-            printWriter.println("This username does not exist." +
+            printWriter.print("This username does not exist." +
                     "\nTry again: ");
             printWriter.flush();
             username = bufferedReader.readLine();
@@ -443,42 +318,20 @@ public class ApplicationServer implements Runnable{
         if (account.getComments().size() == 0) {
             printWriter.println("This user has made no comments.");
             printWriter.flush();
-            bufferedReader.readLine(); //client sends \n after hitting ok on info message
         } else {
-            do { //refresh view every 10 seconds or until next command is sent
-                synchronized (account) {
-                    printWriter.println(account.displayComments());
-                    printWriter.println("Hit ok to get option menu. ");
-                }
-                printWriter.flush();
-                if (bufferedReader.ready() || bufferedReader.readLine() != null) {
-                    bufferedReader.readLine(); //client sends \n after hitting ok on info message
-                    break;
-                }
-                try {
-                    Thread.sleep(10000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            } while(true);
+            synchronized (account) {
+                printWriter.println(account.displayComments());
+            }
+            printWriter.flush();
         }
     }
 
-    /**
-     * makeComment
-     *
-     * implementation for making a comment
-     *
-     * @param printWriter
-     * @param bufferedReader
-     * @param usernameAccountLoggedIn
-     **/
-    public static void makeComment(PrintWriter printWriter, BufferedReader bufferedReader, String usernameAccountLoggedIn) throws IOException{
+    public static void makeComment(PrintWriter printWriter, BufferedReader bufferedReader) throws IOException{
         printWriter.println("Enter the author of the post you would like to comment on: ");
         printWriter.flush();
         String username = bufferedReader.readLine();
         while (usernameValidity(username) == null) {
-            printWriter.println("This username does not exist." +
+            printWriter.print("This username does not exist." +
                     "\nTry again: ");
             printWriter.flush();
             username = bufferedReader.readLine();
@@ -488,7 +341,7 @@ public class ApplicationServer implements Runnable{
         printWriter.flush();
         String title = bufferedReader.readLine();
         while (getPostIndex(title, account) == -1) {
-            printWriter.println("This title does not exist." +
+            printWriter.print("This title does not exist." +
                     "\nTry again: ");
             title = bufferedReader.readLine();
         }
@@ -504,21 +357,12 @@ public class ApplicationServer implements Runnable{
         account.makeComment(comment, postIndex);
     }
 
-    /**
-     * editComment
-     *
-     * implementation for editing a comment
-     *
-     * @param printWriter
-     * @param bufferedReader
-     * @param usernameAccountLoggedIn
-     **/
-    public static void editComment(PrintWriter printWriter, BufferedReader bufferedReader, String usernameAccountLoggedIn) throws IOException{
+    public static void editComment(PrintWriter printWriter, BufferedReader bufferedReader) throws IOException{
         printWriter.println("Enter the author of the post you would like to edit/delete your comment on: ");
         printWriter.flush();
         String username = bufferedReader.readLine();
         while (usernameValidity(username) == null) {
-            printWriter.println("This username does not exist." +
+            printWriter.print("This username does not exist." +
                     "\nTry again: ");
             username = bufferedReader.readLine();
         }
@@ -527,7 +371,7 @@ public class ApplicationServer implements Runnable{
         printWriter.flush();
         String title = bufferedReader.readLine();
         while (getPostIndex(title, account) == -1) {
-            printWriter.println("This title does not exist." +
+            printWriter.print("This title does not exist." +
                     "\nTry again: ");
             printWriter.flush();
             title = bufferedReader.readLine();
@@ -539,7 +383,7 @@ public class ApplicationServer implements Runnable{
         Account a = usernameValidity(usernameAccountLoggedIn);
         while (findComment(text, account.getPosts().get(postIndex).getComments()) == -1
                 || findComment(text, a.getComments()) == -1) {
-            printWriter.println("This comment does not exist." +
+            printWriter.print("This comment does not exist." +
                     "\nTry again: ");
             printWriter.flush();
             text = bufferedReader.readLine();
@@ -568,27 +412,15 @@ public class ApplicationServer implements Runnable{
                 a.editComment(commentIndexAccount, changedText);
             }
         } else {
-            account.deleteCommentPost(commentIndexPost, postIndex);
+            account.deleteCommentPost( commentIndexPost, postIndex);
             synchronized (a) {
                 a.deleteComment(commentIndexAccount);
             }
-            comments.remove(a.getComments().get(commentIndexAccount));
         }
         printWriter.println("Your changes were made.");
-        bufferedReader.readLine(); //client sends \n after hitting ok on info message
     }
 
-    /**
-     * importPost
-     *
-     * import post from a csv
-     * - csv must be in same directory as the module
-     *
-     * @param printWriter
-     * @param bufferedReader
-     * @param usernameAccountLoggedIn
-     **/
-    public static void importPost(PrintWriter printWriter, BufferedReader bufferedReader, String usernameAccountLoggedIn) throws IOException{
+    public static void importPost(PrintWriter printWriter, BufferedReader bufferedReader) throws IOException{
         printWriter.println("Enter the title of the post you would like to import: ");
         printWriter.flush();
         String ans = bufferedReader.readLine();
@@ -602,34 +434,22 @@ public class ApplicationServer implements Runnable{
                 String text = information[2].replaceAll("_", " ");
                 Post post = new Post(title, author, text);
                 Account account = usernameValidity(usernameAccountLoggedIn);
-                printWriter.print(post);
+                System.out.println(post);
                 synchronized (account) {
                     account.addPost(post);
                 }
                 posts.add(post);
-                printWriter.print("The post was added to your account.");
-                bufferedReader.readLine(); //client sends \n after hitting ok on info message
+                System.out.println("The post was added to your account.");
             }
         } catch(FileNotFoundException e) {
             printWriter.println("This file does not exist.");
             printWriter.flush();
-            bufferedReader.readLine(); //client sends \n after hitting ok on info message
         } catch(IOException e) {
             printWriter.println("The information in the file is invalid.");
             printWriter.flush();
-            bufferedReader.readLine(); //client sends \n after hitting ok on info message
         }
     }
 
-    /**
-     * exportPost
-     *
-     * export post from a csv
-     * - csv will be in same directory as module
-     *
-     * @param printWriter
-     * @param bufferedReader
-     **/
     public static void exportPost(PrintWriter printWriter, BufferedReader bufferedReader) throws IOException {
         printWriter.println("Enter the title of the post you would like to export: ");
         printWriter.flush();
@@ -654,18 +474,10 @@ public class ApplicationServer implements Runnable{
         } catch (FileNotFoundException e) {
             printWriter.println("An error occurred.");
             printWriter.flush();
-            bufferedReader.readLine(); //client sends \n after hitting ok on info message
         }
     }
 
-    /**
-     * postTransfer
-     *
-     * assigns previous posts to the appropriate accounts when
-     * loading from a previous session
-     *
-     **/
-    public static void postTransfer() { //does not need to be synced b/c only main server does it
+    public static void postTransfer() {
         for (Post p : posts) {
             for (int i = 0; i < accounts.size(); i++) {
                 if (p.getAuthorName().equals(accounts.get(i).getUsername())) {
@@ -677,14 +489,7 @@ public class ApplicationServer implements Runnable{
         }
     }
 
-    /**
-     * commentTransfer
-     *
-     * assigns previous comments to hte appropriate post and account
-     * when loading from a previous session
-     *
-     **/
-    public static void commentTransfer() { //does not need to be synced b/c only main server does it
+    public static void commentTransfer() {
         for (Comment c : comments) {
             for (int i = 0; i < accounts.size(); i++) {
                 if (c.getAuthorName().equals(accounts.get(i).getUsername())) {
@@ -705,79 +510,42 @@ public class ApplicationServer implements Runnable{
         }
     }
 
-    /**
-     * getPostIndex
-     *
-     * find sthe index of the post in each account's
-     * arraylist of posts
-     *
-     * @param title: post title
-     * @param account: account that made the post
-     **/
+
     public static int getPostIndex(String title, Account account) {
-        synchronized (account) { //sync on which account is being used
-            for (int i = 0; i < account.getPosts().size(); i++) {
-                if (title.equalsIgnoreCase(account.getPosts().get(i).getTitle())) {
-                    return i;
-                }
+        for (int i = 0; i < account.getPosts().size(); i++) {
+            if (title.equalsIgnoreCase(account.getPosts().get(i).getTitle())) {
+                return i;
             }
-            return -1;
         }
+        return -1;
     }
 
-    /**
-     * findPost
-     *
-     * finds a post in the static arraylist of all posts
-     *
-     * @param title: post title
-     **/
     public static int findPost(String title) {
-        synchronized (postsGatekeeper) {
-            for (int i = 0; i < posts.size(); i++) {
-                if (title.equalsIgnoreCase(posts.get(i).getTitle())) {
-                    return i;
-                }
+        for (int i = 0; i < posts.size(); i++) {
+            if (title.equalsIgnoreCase(posts.get(i).getTitle())) {
+                return i;
             }
-            return -1;
         }
+        return -1;
     }
 
-    /**
-     * findComment
-     *
-     * finds a comment in array passed in
-     *
-     * @param context: comment text
-     * @param comments: arraylist
-     **/
     public static int findComment(String context, ArrayList<Comment> comments) {
-        synchronized (commentsGatekeeper) {
-            for (int i = 0; i < comments.size(); i++) {
-                if (comments.get(i).getText().equalsIgnoreCase(context)) {
-                    return i;
-                }
+        for (int i = 0; i < comments.size(); i++) {
+            if (comments.get(i).getText().equalsIgnoreCase(context)) {
+                return i;
             }
-            return -1;
         }
+        return -1;
     }
 
-    /**
-     * usernameValidity
-     *
-     * returns the account with the username
-     *
-     * @param username: username to validate
-     **/
+
     public static Account usernameValidity(String username) {
-        synchronized (accountsGatekeeper) {
-            for (int i = 0; i < accounts.size(); i++) {
-                if (username.equals(accounts.get(i).getUsername())) {
-                    return accounts.get(i);
-                }
+        for (int i = 0; i < accounts.size(); i++) {
+            if (username.equals(accounts.get(i).getUsername())) {
+                return accounts.get(i);
             }
-            return null;
         }
+        return null;
     }
 }
 
