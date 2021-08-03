@@ -24,9 +24,6 @@ public class ApplicationClient {
     private static JButton enterButton;
     private static JTextField ans;
 
-
-
-
     public static void main(String[] args) {
         try (Socket socket = new Socket("localhost", 4244);
              BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -50,7 +47,7 @@ public class ApplicationClient {
     }
 
     public static void displayToGUI(String prompt) {
-        JFrame frame = new JFrame("App");
+        JFrame frame = new JFrame("PostStar");
         String[] lines = prompt.split("\n");
 
         Container content = frame.getContentPane();
@@ -69,7 +66,7 @@ public class ApplicationClient {
         enterButton.addActionListener(actionListener);
         p.add(enterButton);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(600, 600);
+        frame.setSize(600, 300);
         content.add(scroll, BorderLayout.NORTH);
         content.add(p, BorderLayout.SOUTH);
         frame.setVisible(true);
