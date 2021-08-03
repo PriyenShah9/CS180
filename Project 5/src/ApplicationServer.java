@@ -48,7 +48,6 @@ public class ApplicationServer implements Runnable{
             r.readPosts();
             r.readComments();
         } catch (IOException e) {
-            System.out.println("There are no existing accounts.");
             prevAccounts = false;
         }
         accounts = r.accounts;
