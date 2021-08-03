@@ -47,75 +47,88 @@ public class ApplicationClient extends JComponent implements Runnable {
     public static Socket socket;
     public static BufferedReader br;
     public static PrintWriter pw;
+    static boolean q1 = false;
+    static boolean q2 = false;
+    static boolean message = false;
+    static boolean response = false;
+    static String line;
     public static void main(String[] args) throws IOException {
-        SwingUtilities.invokeLater(new ApplicationClient());
+        ApplicationClient ac = new ApplicationClient();
+        SwingUtilities.invokeLater(ac);
+        socket = new Socket("localhost", 4244);
+        br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        pw = new PrintWriter(socket.getOutputStream());
+        while ((line = br.readLine()) != null) {
+            if (line.length() != 0 && line.charAt(line.length() - 1) == ' ') {
+                if (line.equals("Q1 ")) {
+                    q1 = true;
+                } else if (line.equals("Q2 ")) {
+                    q2 = true;
+                } else { //any other time a text response is needed
+                    response = true;
+                }
+            } else { //no response needed
+                message = true;
+            }
+        }
+
+        br.close();
+        pw.close();
     }
 
     public void run() {
+        while (true) {
+            if (q1) {
+                q1 = false;
+                startScreen();
+            } else if (q2) {
+                q2 = false;
+                optionScreen();
+            } else if (response) {
+                response = false;
+                JFrame frame = new JFrame();
+                JLabel label = new JLabel(line);
+                JTextField text = new JTextField(8);
+                JButton submit = new JButton("Submit");
+                frame.add(label);
+                frame.setVisible(true);
 
-        try {
-            socket = new Socket("localhost", 4244);
-            br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            pw = new PrintWriter(socket.getOutputStream());
-            String line;
-            while ((line = br.readLine()) != null) {
-                if (line.length() != 0 && line.charAt(line.length() - 1)== ' ') {
-                    if (line.equals("Q1 ")) {
-                        startScreen();
-                    } else if (line.equals("Q2 ")) {
-                        optionScreen();
-                    } else { //any other time a text response is needed
-                        JFrame frame = new JFrame();
-                        JLabel label = new JLabel(line);
-                        JTextField text = new JTextField(8);
-                        JButton submit = new JButton("Submit");
-                        frame.add(label);
-                        frame.setVisible(true);
-
-                        submit.addActionListener(new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                pw.println(text.getText());
-                                pw.flush();
-                                frame.setVisible(false);
-                            }
-                        });
+                submit.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        pw.println(text.getText());
+                        pw.flush();
+                        frame.setVisible(false);
                     }
-                } else { //no response needed
-                    JFrame frame = new JFrame();
-                    JLabel label = new JLabel(line);
-                    JButton ok = new JButton("OK");
-                    frame.add(label);
-                    frame.setVisible(true);
+                });
+            } else if (message) {
+                message = false;
+                JFrame frame = new JFrame();
+                JLabel label = new JLabel(line);
+                JButton ok = new JButton("OK");
+                frame.add(label);
+                frame.setVisible(true);
 
-                    ok.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            pw.println("\n");
-                            frame.setVisible(false);
-                        }
-                    });
-                }
+                ok.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        pw.println("\n");
+                        frame.setVisible(false);
+                    }
+                });
             }
 
-            br.close();
-            pw.close();
-
-            Clicklistener click= new Clicklistener();
-            logIn.addActionListener(click);
-            newAccount.addActionListener(click);
-            exit.addActionListener(click);
-            continueButton.addActionListener(click);
-
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
+            //Clicklistener click= new Clicklistener();
+            //logIn.addActionListener(click);
+            //newAccount.addActionListener(click);
+            //exit.addActionListener(click);
+            //continueButton.addActionListener(click);
         }
     }
 
 
     public void startScreen() {
+        System.out.println("Hi");
         JFrame startFrame = new JFrame();
         JPanel startPanelTop = new JPanel();
         JPanel startPanelBottom = new JPanel();
