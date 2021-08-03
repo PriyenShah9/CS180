@@ -144,10 +144,7 @@ public class ApplicationServer implements Runnable{
     }
 
     public static String initialQuestion(PrintWriter printWriter, BufferedReader bufferedReader) throws IOException{
-        printWriter.println("Would you like to:" +
-                "\n1. Log in" +
-                "\n2. Create an Account" +
-                "\n3. Exit the program ");
+        printWriter.println("Q1 ");
         printWriter.flush();
         String ans = bufferedReader.readLine();
         while (!(ans.equals("1")) && !(ans.equals("2")) && !(ans.equals("3"))) {
@@ -164,16 +161,7 @@ public class ApplicationServer implements Runnable{
 
 
     public static String nextQuestion(PrintWriter printWriter, BufferedReader bufferedReader) throws IOException{
-        printWriter.println("Would you like to:" +
-                "\n1. Edit your account." +
-                "\n2. View all of a user's posts." +
-                "\n3. Delete account." +
-                "\n4. Make a comment." +
-                "\n5. Edit/Delete a comment." +
-                "\n6. View all of a user's comments." +
-                "\n7. Import a post." +
-                "\n8. Export a post." +
-                "\n9. Log out. ");
+        printWriter.println("Q2 ");
         printWriter.flush();
         String ans = bufferedReader.readLine();
         while (!(ans.equals("1")) && !(ans.equals("2")) && !(ans.equals("3")) && !(ans.equals("4")) &&

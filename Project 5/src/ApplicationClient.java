@@ -4,7 +4,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 import java.io.IOException;
-import java.util.Scanner;
 import java.net.*;
 
 /**
@@ -22,18 +21,20 @@ public class ApplicationClient extends JComponent implements Runnable {
     JButton logIn;
     JButton newAccount;
     JButton exit;
-    JButton continueButton = new JButton("Continue");
+    JButton continueButton = new JButton("Continue"); //crystal did not use this
     JButton posts;
     JButton account;
-    JButton comments;
     JButton addPost;
-    JButton addComment;
-    JButton deletePost;
-    JButton deleteComment;
+
     JButton editAccount;
     JButton deleteAccount;
     JButton logOut;
     JButton importPost;
+    JButton viewPosts;
+    JButton makeComment;
+    JButton editComment;
+    JButton viewComments;
+    JButton exportPost;
 
     JLabel username = new JLabel("Username: ");
     JTextField userInput = new JTextField(10);
@@ -44,6 +45,8 @@ public class ApplicationClient extends JComponent implements Runnable {
 
 
     public static Socket socket;
+    public static BufferedReader br;
+    public static PrintWriter pw;
     public static void main(String[] args) throws IOException {
         SwingUtilities.invokeLater(new ApplicationClient());
     }
@@ -51,12 +54,48 @@ public class ApplicationClient extends JComponent implements Runnable {
     public void run() {
 
         try {
-            startScreen();
-
             socket = new Socket("localhost", 4244);
-            BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            PrintWriter pw = new PrintWriter(socket.getOutputStream());
+            br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            pw = new PrintWriter(socket.getOutputStream());
             String line;
+            while ((line = br.readLine()) != null) {
+                if (line.length() != 0 && line.charAt(line.length() - 1)== ' ') {
+                    if (line.equals("Q1 ")) {
+                        startScreen();
+                    } else if (line.equals("Q2 ")) {
+                        optionScreen();
+                    } else { //any other time a text response is needed
+                        JFrame frame = new JFrame();
+                        JLabel label = new JLabel(line);
+                        JTextField text = new JTextField(8);
+                        JButton submit = new JButton("Submit");
+                        frame.add(label);
+                        frame.setVisible(true);
+
+                        submit.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                pw.println(text.getText());
+                                pw.flush();
+                                frame.setVisible(false);
+                            }
+                        });
+                    }
+                } else { //no response needed
+                    JFrame frame = new JFrame();
+                    JLabel label = new JLabel(line);
+                    JButton ok = new JButton("OK");
+                    frame.add(label);
+                    frame.setVisible(true);
+
+                    ok.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            frame.setVisible(false);
+                        }
+                    });
+                }
+            }
 
             br.close();
             pw.close();
@@ -85,7 +124,6 @@ public class ApplicationClient extends JComponent implements Runnable {
         startFrame.setSize(300, 150);
         startFrame.setLocationRelativeTo(null);
         startFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        startFrame.setVisible(true);
 
         logIn = new JButton("Log In");
         newAccount = new JButton("New Account");
@@ -98,8 +136,144 @@ public class ApplicationClient extends JComponent implements Runnable {
         startContent.add(startPanelTop, BorderLayout.NORTH);
         startContent.add(startPanelBottom, BorderLayout.SOUTH);
 
-        // if any button is clicked, hide frame
+        startFrame.setVisible(true);
 
+        // if any button is clicked, hide frame
+        logIn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                pw.println("1");
+                pw.flush();
+            }
+        });
+
+        newAccount.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                pw.println("2");
+                pw.flush();
+            }
+        });
+
+        exit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                pw.println("3");
+                pw.flush();
+                startFrame.dispose();
+            }
+        });
+    }
+
+    public void optionScreen() {
+        JFrame optionFrame = new JFrame();
+        Container optionContent = optionFrame.getContentPane();
+        optionContent.setLayout(new FlowLayout());
+        optionFrame.setSize(300, 150);
+        optionFrame.setLocationRelativeTo(null);
+        optionFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        JPanel optionR = new JPanel();
+        JPanel optionL = new JPanel();
+        JPanel optionB = new JPanel();
+
+        editAccount = new JButton("Edit account.");
+        viewPosts = new JButton("View all of a user's posts.");
+        deleteAccount = new JButton("Delete account.");
+        makeComment = new JButton("Make a comment.");
+        editComment = new JButton("Edit/Delete a comment.");
+        viewComments = new JButton("View all of a user's comments.");
+        importPost = new JButton("Import post.");
+        exportPost = new JButton("Export post.");
+        logOut = new JButton("Log out.");
+
+        optionL.add(editAccount);
+        optionL.add(viewPosts);
+        optionL.add(deleteAccount);
+        optionL.add(makeComment);
+        optionR.add(editComment);
+        optionR.add(viewComments);
+        optionR.add(importPost);
+        optionR.add(exportPost);
+        optionB.add(logOut);
+
+        optionContent.add(optionL);
+        optionContent.add(optionR);
+        optionContent.add(optionB);
+
+        optionFrame.setVisible(true);
+
+        editAccount.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                pw.println("1");
+                pw.flush();
+            }
+        });
+
+        viewPosts.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                pw.println("2");
+                pw.flush();
+            }
+        });
+
+        deleteAccount.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                pw.println("3");
+                pw.flush();
+            }
+        });
+
+        makeComment.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                pw.println("4");
+                pw.flush();
+            }
+        });
+
+        editComment.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                pw.println("5");
+                pw.flush();
+            }
+        });
+
+        viewComments.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                pw.println("6");
+                pw.flush();
+            }
+        });
+
+        importPost.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                pw.println("7");
+                pw.flush();
+            }
+        });
+
+        exportPost.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                pw.println("8");
+                pw.flush();
+            }
+        });
+
+        logOut.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                pw.println("9");
+                pw.flush();
+            }
+        });
     }
 
     public void logInScreen() {
@@ -296,8 +470,9 @@ public class ApplicationClient extends JComponent implements Runnable {
                 // import post
             }
         });
-
     }
+
+
 
 
     private class Clicklistener implements ActionListener {
@@ -320,7 +495,6 @@ public class ApplicationClient extends JComponent implements Runnable {
             }
         }
     }
-
 }
 
 
