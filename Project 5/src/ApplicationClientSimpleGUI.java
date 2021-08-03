@@ -25,6 +25,7 @@ public class ApplicationClientSimpleGUI {
 
         while ((line = br.readLine()) != null) {
             String[] lines = line.split("\n");
+            System.out.println(lines[0]);
             JPanel panel = new JPanel(new GridLayout());
             ArrayList<JLabel> labels = new ArrayList<>();
             for (int i = 0; i < lines.length; i++) {
