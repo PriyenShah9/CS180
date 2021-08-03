@@ -8,13 +8,13 @@ import java.net.*;
 
 
 /**
- * Project 4 - Application
+ * Project 5 - ApplicationClient
  * <p>
- * The Application class is the class that
- * does all the interactions with the user.
+ * The ApplicationClient interacts with
+ * the user via the GUI
  *
  * @author Team #002, Section Y01
- * @version July 21, 2021
+ * @version August 3, 2021
  */
 
 public class ApplicationClient {
