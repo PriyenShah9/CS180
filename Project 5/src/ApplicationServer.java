@@ -41,6 +41,11 @@ public class ApplicationServer implements Runnable{
         this.socket = socket;
     }
 
+    /**
+     * main
+     *
+     * loads data, socket, starts threads
+     **/
     public static void main(String[] args) throws IOException {
         ReadData r = new ReadData("accounts.txt", "posts.txt", "comments.txt");
         try {
@@ -67,6 +72,11 @@ public class ApplicationServer implements Runnable{
         }
     }
 
+    /**
+     * run
+     *
+     * calls other methods, writes data
+     **/
     public void run() {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
              PrintWriter pw = new PrintWriter(this.socket.getOutputStream())) {
@@ -149,6 +159,15 @@ public class ApplicationServer implements Runnable{
 
     }
 
+    /**
+     * initialQuestion
+     *
+     * first 3 options
+     *
+     * @param printWriter: printwriter
+     * @param bufferedReader: bufferedreader
+     * @return String: answer to the first questions
+     **/
     public static String initialQuestion(PrintWriter printWriter, BufferedReader bufferedReader) throws IOException{
         printWriter.println("Q1 ");
         printWriter.flush();
@@ -165,7 +184,15 @@ public class ApplicationServer implements Runnable{
         return ans;
     }
 
-
+    /**
+     * nextQuestion
+     *
+     * 9 options that are available after logging in
+     *
+     * @param printWriter: printwriter
+     * @param bufferedReader: bufferedreader
+     * @return String: answer to the first questions
+     **/
     public static String nextQuestion(PrintWriter printWriter, BufferedReader bufferedReader) throws IOException{
         printWriter.println("Q2 ");
         printWriter.flush();
@@ -190,6 +217,16 @@ public class ApplicationServer implements Runnable{
         return ans;
     }
 
+    /**
+     * createAccount
+     *
+     * if user selects 2 in initial questions:
+     * all questions and actions needed to create an account
+     * new account is added to accounts array
+     *
+     * @param printWriter
+     * @param bufferedReader
+     **/
     public static Account createAccount(PrintWriter printWriter, BufferedReader bufferedReader)  throws IOException {
         printWriter.println("What is your name? ");
         printWriter.flush();
@@ -218,7 +255,16 @@ public class ApplicationServer implements Runnable{
         return new Account(name, username, password, true);
     }
 
-
+    /**
+     * login
+     *
+     * if user selects 1 in initial question:
+     * asks for username until a username that exists is provided
+     * and checks for the password to be the same
+     *
+     * @param printWriter
+     * @param bufferedReader
+     **/
     public static String login(PrintWriter printWriter, BufferedReader bufferedReader) throws IOException{
         printWriter.println("Username: ");
         printWriter.flush();
@@ -243,6 +289,17 @@ public class ApplicationServer implements Runnable{
         return username;
     }
 
+    /**
+     * editAccount
+     *
+     * after 1 is selected in nextQuestion:
+     * - can make, edit, or delete a post
+     * implementations for all three are in here
+     *
+     * @param printWriter
+     * @param bufferedReader
+     * @param usernameAccountLoggedIn
+     **/
     public static void editAccount(PrintWriter printWriter, BufferedReader bufferedReader, String usernameAccountLoggedIn) throws IOException{
         Account a = usernameValidity(usernameAccountLoggedIn);
         printWriter.println("Would you like to:" +
@@ -321,6 +378,14 @@ public class ApplicationServer implements Runnable{
         }
     }
 
+    /**
+     * viewPosts
+     *
+     * to view all posts from a user
+     *
+     * @param printWriter
+     * @param bufferedReader
+     **/
     public static void viewPosts(PrintWriter printWriter, BufferedReader bufferedReader) throws IOException{
         printWriter.println("Enter the username of the account you would like to view: ");
         printWriter.flush();
@@ -357,6 +422,14 @@ public class ApplicationServer implements Runnable{
         }
     }
 
+    /**
+     * viewComments
+     *
+     * to view all comments made by a user
+     *
+     * @param printWriter
+     * @param bufferedReader
+     **/
     public static void viewComments(PrintWriter printWriter, BufferedReader bufferedReader) throws IOException{
         printWriter.println("Enter the username of the account you would like to view: ");
         printWriter.flush();
@@ -392,6 +465,15 @@ public class ApplicationServer implements Runnable{
         }
     }
 
+    /**
+     * makeComment
+     *
+     * implementation for making a comment
+     *
+     * @param printWriter
+     * @param bufferedReader
+     * @param usernameAccountLoggedIn
+     **/
     public static void makeComment(PrintWriter printWriter, BufferedReader bufferedReader, String usernameAccountLoggedIn) throws IOException{
         printWriter.println("Enter the author of the post you would like to comment on: ");
         printWriter.flush();
@@ -423,6 +505,15 @@ public class ApplicationServer implements Runnable{
         account.makeComment(comment, postIndex);
     }
 
+    /**
+     * editComment
+     *
+     * implementation for editing a comment
+     *
+     * @param printWriter
+     * @param bufferedReader
+     * @param usernameAccountLoggedIn
+     **/
     public static void editComment(PrintWriter printWriter, BufferedReader bufferedReader, String usernameAccountLoggedIn) throws IOException{
         printWriter.println("Enter the author of the post you would like to edit/delete your comment on: ");
         printWriter.flush();
@@ -488,6 +579,16 @@ public class ApplicationServer implements Runnable{
         bufferedReader.readLine(); //client sends \n after hitting ok on info message
     }
 
+    /**
+     * importPost
+     *
+     * import post from a csv
+     * - csv must be in same directory as the module
+     *
+     * @param printWriter
+     * @param bufferedReader
+     * @param usernameAccountLoggedIn
+     **/
     public static void importPost(PrintWriter printWriter, BufferedReader bufferedReader, String usernameAccountLoggedIn) throws IOException{
         printWriter.println("Enter the title of the post you would like to import: ");
         printWriter.flush();
@@ -521,6 +622,15 @@ public class ApplicationServer implements Runnable{
         }
     }
 
+    /**
+     * exportPost
+     *
+     * export post from a csv
+     * - csv will be in same directory as module
+     *
+     * @param printWriter
+     * @param bufferedReader
+     **/
     public static void exportPost(PrintWriter printWriter, BufferedReader bufferedReader) throws IOException {
         printWriter.println("Enter the title of the post you would like to export: ");
         printWriter.flush();
@@ -549,6 +659,13 @@ public class ApplicationServer implements Runnable{
         }
     }
 
+    /**
+     * postTransfer
+     *
+     * assigns previous posts to the appropriate accounts when
+     * loading from a previous session
+     *
+     **/
     public static void postTransfer() { //does not need to be synced b/c only main server does it
         for (Post p : posts) {
             for (int i = 0; i < accounts.size(); i++) {
@@ -561,6 +678,13 @@ public class ApplicationServer implements Runnable{
         }
     }
 
+    /**
+     * commentTransfer
+     *
+     * assigns previous comments to hte appropriate post and account
+     * when loading from a previous session
+     *
+     **/
     public static void commentTransfer() { //does not need to be synced b/c only main server does it
         for (Comment c : comments) {
             for (int i = 0; i < accounts.size(); i++) {
@@ -582,7 +706,15 @@ public class ApplicationServer implements Runnable{
         }
     }
 
-
+    /**
+     * getPostIndex
+     *
+     * find sthe index of the post in each account's
+     * arraylist of posts
+     *
+     * @param title: post title
+     * @param account: account that made the post
+     **/
     public static int getPostIndex(String title, Account account) {
         synchronized (account) { //sync on which account is being used
             for (int i = 0; i < account.getPosts().size(); i++) {
@@ -594,6 +726,13 @@ public class ApplicationServer implements Runnable{
         }
     }
 
+    /**
+     * findPost
+     *
+     * finds a post in the static arraylist of all posts
+     *
+     * @param title: post title
+     **/
     public static int findPost(String title) {
         synchronized (postsGatekeeper) {
             for (int i = 0; i < posts.size(); i++) {
@@ -605,6 +744,14 @@ public class ApplicationServer implements Runnable{
         }
     }
 
+    /**
+     * findComment
+     *
+     * finds a comment in array passed in
+     *
+     * @param context: comment text
+     * @param comments: arraylist
+     **/
     public static int findComment(String context, ArrayList<Comment> comments) {
         synchronized (commentsGatekeeper) {
             for (int i = 0; i < comments.size(); i++) {
@@ -616,7 +763,13 @@ public class ApplicationServer implements Runnable{
         }
     }
 
-
+    /**
+     * usernameValidity
+     *
+     * returns the account with the username
+     *
+     * @param username: username to validate
+     **/
     public static Account usernameValidity(String username) {
         synchronized (accountsGatekeeper) {
             for (int i = 0; i < accounts.size(); i++) {
